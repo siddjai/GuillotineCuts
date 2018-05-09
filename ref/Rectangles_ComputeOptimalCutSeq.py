@@ -76,6 +76,9 @@ def optimalCut(rects, x, y, reg, seq, killed):
 			yy2.add(tup[2])
 			yy2.add(tup[3])
 
+		yy1 = sorted(list(yy1))
+		yy2 = sorted(list(yy2))
+
 		reg2 = list(reg) 
 		reg2[0] = x[1+k]
 		reg2 = tuple(reg2)
@@ -101,8 +104,8 @@ def optimalCut(rects, x, y, reg, seq, killed):
 
 		xx1 = set()
 		for tup in rects1:
-			xx1.add(rects1[0])
-			xx1.add(rects1[1])
+			xx1.add(tup[0])
+			xx1.add(tup[1])
 
 		reg1 = list(reg)
 		reg1[3] = y[1+k]
@@ -110,8 +113,11 @@ def optimalCut(rects, x, y, reg, seq, killed):
 
 		xx2 = set()
 		for tup in rects2:
-			xx2.add(rects2[0])
-			xx2.add(rects2[1])
+			xx2.add(tup[0])
+			xx2.add(tup[1])
+
+		xx1 = sorted(list(xx1))
+		xx2 = sorted(list(xx2))
 
 		reg2 = list(reg) 
 		reg2[2] = y[1+k]
@@ -132,7 +138,7 @@ def optimalCut(rects, x, y, reg, seq, killed):
 	if minPtr < len(x) - 1: newLine = (x[1 + minPtr], 0)
 	else: newLine = (y[minPtr - len(x)], 1)
 
-	return newLine + seqs[minPtr], killed + cuts[minPtr]
+	return [newLine,] + seqs[minPtr], killed + cuts[minPtr]
 
 
 def sanityCheck(rects):
