@@ -4,7 +4,7 @@
 
 # Format for specifying a line:
 # (a, b) where a is a number and b is a binary number where
-# 0 -> || to Y axis AND 1 -> || to X axis (
+# 0 -> || to Y axis AND 1 -> || to X axis
 
 # Format for specifying an interval:
 # (a1, a2)
@@ -13,38 +13,37 @@ def intervalIntersect(i1, i2):
 	x1, x2 = i1[0], i1[1]
 	if (x1 > i2[0] and x1 < i2[1]) or (x2 > i2[0] and x2 < i2[1]):
 		return True
+
+	x1, x2 = i2[0], i2[1]
+	if (x1 > i1[0] and x1 < i1[1]) or (x2 > i1[0] and x2 < i1[1]):
+		return True
+
 	return False
 
-def optimalCut(rects, x, y, reg, seq, killed):
+def optimalCut(rects, x, y, reg, seq):
 	# rects : Rectangles in the current set
 	# x : sorted list of X coordinates
 	# y : sorted list of Y coordinates
 	# reg : current bounded region
 	# seq : sequence of cuts upto this set
-	# killed: no of rectangles killed upto this set
 
 	# RETURN
 	# seq : seq of rectangles including this level
 	# killed : no of rectangles killed including this level
 
-	if len(rects)==0:
-		return seq, killed
 	if len(rects)==1:
-		return seq, killed
+		return seq, 0
 	if len(rects)==2:
 		rects = list(rects)
-		i1 = (rects[0][0], rects[0][1])
-		i2 = (rects[1][0], rects[1][1])
-		if not intervalIntersect(i1, i2):
-			if rects[0][1] < rects[1][0]:
-				return seq + [(rects[0][1], 0)], killed
-			else:
-				return seq + [(rects[1][1], 0)], killed
-		else:
-			if rects[0][3] < rects[1][2]:
-				return seq + [(rects[0][3], 1)], killed
-			else:
-				return seq + [(rects[1][3], 1)], killed
+		rec1, rec2 = rects[0], rects[1]
+		x1, x2, y1, y2 = (rec1[0], rec1[1]), (rec2[0], rec2[1]), (rec1[2], rec1[3]), (rec2[2], rec2[3])
+		for xx in x[1:-1]:
+			if (not intervalIntersect(x1, (xx,xx))) and (not intervalIntersect(x2, (xx,xx))):
+				return seq + [(xx, 0)], 0
+		for yy in y[1:-1]:
+			if (not intervalIntersect(y1, (yy,yy))) and (not intervalIntersect(y2, (yy,yy))):
+				return seq + [(yy, 1)], 0
+
 
 	m = len(x) + len(y) - 4
 	cuts = [ 1000 for k in range(m) ]
@@ -83,9 +82,14 @@ def optimalCut(rects, x, y, reg, seq, killed):
 		reg2[0] = x[1+k]
 		reg2 = tuple(reg2)
 		
-		seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq, killed)
-		seq2, kill2 = optimalCut(rects2, xx2, yy2, reg2, seq, killed)
-		cuts[k] = kill1 + kill2
+		seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq)
+		seq2, kill2 = optimalCut(rects2, xx2, yy2, reg2, seq)
+		kill3 = 0
+		for tup in rects:
+			xi = tup[:2]
+			if intervalIntersect(xi, (x[1+k], x[1+k])):
+				kill3 += 1
+		cuts[k] = kill1 + kill2 + kill3
 		# Check if correct
 		seqs.append(seq + seq1 + seq2)
 
@@ -123,9 +127,14 @@ def optimalCut(rects, x, y, reg, seq, killed):
 		reg2[2] = y[1+k]
 		reg2 = tuple(reg2)
 
-		seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq, killed)
-		seq2, kill2 = optimalCut(rects2, xx2, yy2, reg2, seq, killed)
-		cuts[len(x) - 2 + k] = kill1 + kill2
+		seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq)
+		seq2, kill2 = optimalCut(rects2, xx2, yy2, reg2, seq)
+		kill3 = 0
+		for tup in rects:
+			yi = tup[2:]
+			if intervalIntersect(yi, (y[1+k], y[1+k])):
+				kill3 += 1
+		cuts[len(x) - 2 + k] = kill1 + kill2 + kill3
 		# Check if correct
 		seqs.append(seq + seq1 + seq2)
 
@@ -138,7 +147,7 @@ def optimalCut(rects, x, y, reg, seq, killed):
 	if minPtr < len(x) - 1: newLine = (x[1 + minPtr], 0)
 	else: newLine = (y[minPtr - len(x)], 1)
 
-	return [newLine,] + seqs[minPtr], killed + cuts[minPtr]
+	return [newLine,] + seqs[minPtr], cuts[minPtr]
 
 
 def sanityCheck(rects):
@@ -169,9 +178,8 @@ if sanityCheck(rects):
 	y = sorted(list(y))
 	reg = (0, 1000, 0, 1000)
 	seq = []
-	killed = 0
 
-	print(optimalCut(rects, x, y, reg, seq, killed))
+	print(optimalCut(rects, x, y, reg, seq))
 
 else: print("Rectangle set not valid")
 
