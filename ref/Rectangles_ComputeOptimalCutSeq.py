@@ -32,6 +32,7 @@ def optimalCut(rects, x, y, reg, seq, killed):
 	if len(rects)==1:
 		return seq, killed
 	if len(rects)==2:
+		rects = list(rects)
 		i1 = (rects[0][0], rects[0][1])
 		i2 = (rects[1][0], rects[1][1])
 		if not intervalIntersect(i1, i2):
@@ -45,10 +46,10 @@ def optimalCut(rects, x, y, reg, seq, killed):
 			else:
 				return seq + [(rects[1][3], 1)], killed
 
-	m = len(x) + len(y) - 2
+	m = len(x) + len(y) - 4
 	cuts = [ 1000 for k in range(m) ]
 	seqs = []
-	for k in range(len(x) - 1):
+	for k in range(len(x) - 2):
 		rects1 = set()
 		boundary = False
 		for rec in rects:
@@ -63,19 +64,21 @@ def optimalCut(rects, x, y, reg, seq, killed):
 
 		yy1 = set()
 		for tup in rects1:
-			yy1.add(rects1[2])
-			yy1.add(rects1[3])
+			yy1.add(tup[2])
+			yy1.add(tup[3])
 
-		reg1 = reg
+		reg1 = list(reg)
 		reg1[1] = x[1+k] 
+		reg1 = tuple(reg1)
 
 		yy2 = set()
 		for tup in rects2:
-			yy2.add(rects2[2])
-			yy2.add(rects2[3])
+			yy2.add(tup[2])
+			yy2.add(tup[3])
 
-		reg2 = reg 
+		reg2 = list(reg) 
 		reg2[0] = x[1+k]
+		reg2 = tuple(reg2)
 		
 		seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq, killed)
 		seq2, kill2 = optimalCut(rects2, xx2, yy2, reg2, seq, killed)
@@ -83,7 +86,7 @@ def optimalCut(rects, x, y, reg, seq, killed):
 		# Check if correct
 		seqs.append(seq + seq1 + seq2)
 
-	for k in range(len(y) - 1):
+	for k in range(len(y) - 2):
 		rects1 = set()
 		boundary = False
 		for rec in rects:
@@ -101,20 +104,22 @@ def optimalCut(rects, x, y, reg, seq, killed):
 			xx1.add(rects1[0])
 			xx1.add(rects1[1])
 
-		reg1 = reg
-		reg1[3] = y[1+k] 
+		reg1 = list(reg)
+		reg1[3] = y[1+k]
+		reg1 = tuple(reg1) 
 
 		xx2 = set()
 		for tup in rects2:
 			xx2.add(rects2[0])
 			xx2.add(rects2[1])
 
-		reg2 = reg 
+		reg2 = list(reg) 
 		reg2[2] = y[1+k]
+		reg2 = tuple(reg2)
 
 		seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq, killed)
 		seq2, kill2 = optimalCut(rects2, xx2, yy2, reg2, seq, killed)
-		cuts[len(x) - 1 + k] = kill1 + kill2
+		cuts[len(x) - 2 + k] = kill1 + kill2
 		# Check if correct
 		seqs.append(seq + seq1 + seq2)
 
