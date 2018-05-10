@@ -41,10 +41,10 @@ def optimalCut(rects, x, y, reg, seq):
 		x1, x2, y1, y2 = (rec1[0], rec1[1]), (rec2[0], rec2[1]), (rec1[2], rec1[3]), (rec2[2], rec2[3])
 		for xx in x[1:-1]:
 			if (not intervalIntersect(x1, (xx,xx))) and (not intervalIntersect(x2, (xx,xx))):
-				return seq + [(xx, 0)], 0
+				return seq + [[reg,(xx, 0)]], 0
 		for yy in y[1:-1]:
 			if (not intervalIntersect(y1, (yy,yy))) and (not intervalIntersect(y2, (yy,yy))):
-				return seq + [(yy, 1)], 0
+				return seq + [[reg, (yy, 1)]], 0
 
 	# Check if already memoized here
 	key_rects = tuple(sorted(list(rects)))
@@ -155,7 +155,7 @@ def optimalCut(rects, x, y, reg, seq):
 
 	# Add to dictionary here
 	dp[key_rects] = ([newLine] + seqs[minPtr], cuts[minPtr])
-	return [newLine] + seqs[minPtr], cuts[minPtr]
+	return [[reg,newLine]] + seqs[minPtr], cuts[minPtr]
 
 
 def sanityCheck(rects):
@@ -184,7 +184,7 @@ if sanityCheck(rects):
 
 	x = sorted(list(x))
 	y = sorted(list(y))
-	reg = (0, 1000, 0, 1000)
+	reg = (x[0], x[-1], y[0], y[-1])
 	seq = []
 
 	print(optimalCut(rects, x, y, reg, seq))
