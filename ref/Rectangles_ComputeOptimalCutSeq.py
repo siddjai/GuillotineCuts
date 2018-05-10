@@ -22,11 +22,11 @@ def intervalIntersect(i1, i2):
 
 	return False
 
-def optimalCut(rects, x, y, reg, seq):
+def optimalCut(rects, x, y, seq):
 	# rects : Rectangles in the current set
 	# x : sorted list of X coordinates
 	# y : sorted list of Y coordinates
-	# reg : current bounded region
+	# reg : current bounded region [REMOVED BECAUSE OF NO USE IN CODE]
 	# seq : sequence of cuts upto this set
 
 	# RETURN
@@ -72,10 +72,6 @@ def optimalCut(rects, x, y, reg, seq):
 			yy1.add(tup[2])
 			yy1.add(tup[3])
 
-		reg1 = list(reg)
-		reg1[1] = x[1+k] 
-		reg1 = tuple(reg1)
-
 		yy2 = set()
 		for tup in rects2:
 			yy2.add(tup[2])
@@ -84,19 +80,15 @@ def optimalCut(rects, x, y, reg, seq):
 		yy1 = sorted(list(yy1))
 		yy2 = sorted(list(yy2))
 
-		reg2 = list(reg) 
-		reg2[0] = x[1+k]
-		reg2 = tuple(reg2)
-		
-		seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq)
-		seq2, kill2 = optimalCut(rects2, xx2, yy2, reg2, seq)
+		seq1, kill1 = optimalCut(rects1, xx1, yy1, seq)
+		seq2, kill2 = optimalCut(rects2, xx2, yy2, seq)
 		kill3 = 0
 		for tup in rects:
 			xi = tup[:2]
 			if intervalIntersect(xi, (x[1+k], x[1+k])):
 				kill3 += 1
 		cuts[k] = kill1 + kill2 + kill3
-		# Check if correct
+		# Add context; Use tree?
 		seqs.append(seq + seq1 + seq2)
 
 	for k in range(len(y) - 2):
@@ -117,10 +109,6 @@ def optimalCut(rects, x, y, reg, seq):
 			xx1.add(tup[0])
 			xx1.add(tup[1])
 
-		reg1 = list(reg)
-		reg1[3] = y[1+k]
-		reg1 = tuple(reg1) 
-
 		xx2 = set()
 		for tup in rects2:
 			xx2.add(tup[0])
@@ -129,19 +117,15 @@ def optimalCut(rects, x, y, reg, seq):
 		xx1 = sorted(list(xx1))
 		xx2 = sorted(list(xx2))
 
-		reg2 = list(reg) 
-		reg2[2] = y[1+k]
-		reg2 = tuple(reg2)
-
-		seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq)
-		seq2, kill2 = optimalCut(rects2, xx2, yy2, reg2, seq)
+		seq1, kill1 = optimalCut(rects1, xx1, yy1, seq)
+		seq2, kill2 = optimalCut(rects2, xx2, yy2, seq)
 		kill3 = 0
 		for tup in rects:
 			yi = tup[2:]
 			if intervalIntersect(yi, (y[1+k], y[1+k])):
 				kill3 += 1
 		cuts[len(x) - 2 + k] = kill1 + kill2 + kill3
-		# Check if correct
+		# Add context; Use tree?
 		seqs.append(seq + seq1 + seq2)
 
 	minPtr = 0
@@ -184,10 +168,9 @@ if sanityCheck(rects):
 
 	x = sorted(list(x))
 	y = sorted(list(y))
-	reg = (0, 1000, 0, 1000)
 	seq = []
 
-	print(optimalCut(rects, x, y, reg, seq))
+	print(optimalCut(rects, x, y, seq))
 
 else: print("Rectangle set not valid")
 
