@@ -9,6 +9,8 @@
 # Format for specifying an interval:
 # (a1, a2)
 
+dp = dict()
+
 def intervalIntersect(i1, i2):
 	x1, x2 = i1[0], i1[1]
 	if (x1 > i2[0] and x1 < i2[1]) or (x2 > i2[0] and x2 < i2[1]):
@@ -31,11 +33,11 @@ def optimalCut(rects, x, y, reg, seq):
 	# seq : seq of rectangles including this level
 	# killed : no of rectangles killed including this level
 
-	if len(rects)==1:
+	if len(rects)==1 or len(rects)==0:
 		return seq, 0
 	if len(rects)==2:
-		rects = list(rects)
-		rec1, rec2 = rects[0], rects[1]
+		rectsL = list(rects)
+		rec1, rec2 = rectsL[0], rectsL[1]
 		x1, x2, y1, y2 = (rec1[0], rec1[1]), (rec2[0], rec2[1]), (rec1[2], rec1[3]), (rec2[2], rec2[3])
 		for xx in x[1:-1]:
 			if (not intervalIntersect(x1, (xx,xx))) and (not intervalIntersect(x2, (xx,xx))):
@@ -44,6 +46,10 @@ def optimalCut(rects, x, y, reg, seq):
 			if (not intervalIntersect(y1, (yy,yy))) and (not intervalIntersect(y2, (yy,yy))):
 				return seq + [(yy, 1)], 0
 
+	# Check if already memoized here
+	key_rects = tuple(sorted(list(rects)))
+	if key_rects in dp.keys():
+		return dp[key_rects]
 
 	m = len(x) + len(y) - 4
 	cuts = [ 1000 for k in range(m) ]
@@ -147,7 +153,9 @@ def optimalCut(rects, x, y, reg, seq):
 	if minPtr < len(x) - 1: newLine = (x[1 + minPtr], 0)
 	else: newLine = (y[minPtr - len(x)], 1)
 
-	return [newLine,] + seqs[minPtr], cuts[minPtr]
+	# Add to dictionary here
+	dp[key_rects] = ([newLine] + seqs[minPtr], cuts[minPtr])
+	return [newLine] + seqs[minPtr], cuts[minPtr]
 
 
 def sanityCheck(rects):
