@@ -51,6 +51,7 @@ def optimalCut(rects, x, y, seq):
 	if key_rects in dp.keys():
 		return dp[key_rects]
 
+	# Sufficient to try all boundaries of rectangles
 	m = len(x) + len(y) - 4
 	cuts = [ 1000 for k in range(m) ]
 	seqs = []
