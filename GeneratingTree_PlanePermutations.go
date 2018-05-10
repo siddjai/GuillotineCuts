@@ -72,6 +72,7 @@ func isPlane (perm []int) (bool) {
 }
 
 func main() {
+	runtime.GOMAXPROCS(8)
 	// Implement set - done?
 	curLevel := NewSliceSet()
 	curLevel.Add([]int{1,2,3})
