@@ -5,7 +5,11 @@
 
 package main
 
-import "fmt"
+import (
+    "fmt"
+    "runtime"
+    "sync"
+)
 
 // struct to mimick set in Python
 // code from https://play.golang.org/p/_FvECoFvhq
