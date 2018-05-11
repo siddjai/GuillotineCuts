@@ -11,7 +11,7 @@ import (
     "sync"
 )
 
-// struct to mimick set in Python
+// struct to mimick set in Python | NOT FUNCTIONAL
 // code from https://play.golang.org/p/_FvECoFvhq
 type SliceSet struct {
 	set map[[]int]bool
@@ -33,7 +33,10 @@ func min (a, b int) (int) {
 	return b
 }
 
-func localExp (perm []int, a int) ([]int) {
+func localExp (perm []int, a int, p chan []int, c chan int) {
+	c <- 1
+	defer <- c
+
 	// Local expansion as described in the paper
 	newPerm := make([]int, len(perm)+1)
 	for i, k := range perm {
@@ -44,7 +47,7 @@ func localExp (perm []int, a int) ([]int) {
 		}
 	}
 	newPerm[len(perm)] = a
-	return newPerm
+	p <- newPerm
 }
 
 func isPlane (perm []int) (bool) {
@@ -67,7 +70,7 @@ func isPlane (perm []int) (bool) {
 		for _,k := range suffix {
 			if (k > two) && (k < M) {
 				three = k
-				c <- false
+				return false
 			}
 		}
 	}
@@ -75,20 +78,14 @@ func isPlane (perm []int) (bool) {
 	return true
 }
 
-func expansionCheck (perm []int, a int, c chan int) {
-	newPerm := localExp(perm)
-
-	if isPlane(newPerm) {
-		p <- newPerm
-	} else {
-		return nil
-	} 
-}
+func expand()
 
 func main() {
-	runtime.GOMAXPROCS(8)
-	// Implement set - done?
+	procs := 8
+	runtime.GOMAXPROCS(procs)
+	// Implement set
 	curLevel := NewSliceSet()
+	// Implement Add
 	curLevel.Add([]int{1,2,3})
 	curLevel.Add([]int{1,3,2})
 	curLevel.Add([]int{2,1,3})
@@ -96,16 +93,26 @@ func main() {
 	curLevel.Add([]int{2,3,1})
 	curLevel.Add([]int{3,2,1})
 	level := 3
+
+	c := make(chan int, procs)
 	for level < 20 {
 		newLevel := NewSliceSet()
-		for _,perm := range curLevel {
-			p := make(chan int)
-			for a:=1; a<=level+1; a++ {
-				go expansionCheck(perm, a, p)
-				perm := <- p
-				if plane!=nil {newLevel.Add(newPerm)}
+		p := make(chan []int, 100)
+		go funct() {
+			for _,perm := range curLevel {
+				for a:=1; a<=level+1; a++ {
+					go localExp(perm, a, p, c)
+				}
 			}
-			
+		}
+
+		for newPerm := range p {
+			go func() {
+				c <- 1
+				defer <- c
+				// Implement Add
+				if isPlane(newPerm) {newLevel.Add(newPerm)}
+			}
 		}
 
 		fmt.Println(len(newLevel))
