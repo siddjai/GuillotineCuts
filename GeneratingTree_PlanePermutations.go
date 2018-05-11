@@ -33,7 +33,7 @@ func min (a, b int) (int) {
 	return b
 }
 
-func localExp (perm []int, a int, c chan []int) {
+func localExp (perm []int, a int) ([]int) {
 	// Local expansion as described in the paper
 	newPerm := make([]int, len(perm)+1)
 	for i, k := range perm {
@@ -44,7 +44,7 @@ func localExp (perm []int, a int, c chan []int) {
 		}
 	}
 	newPerm[len(perm)] = a
-	c <- newPerm
+	return newPerm
 }
 
 func isPlane (perm []int) (bool) {
@@ -67,12 +67,22 @@ func isPlane (perm []int) (bool) {
 		for _,k := range suffix {
 			if (k > two) && (k < M) {
 				three = k
-				return false
+				c <- false
 			}
 		}
 	}
 
 	return true
+}
+
+func expansionCheck (perm []int, a int, c chan int) {
+	newPerm := localExp(perm)
+
+	if isPlane(newPerm) {
+		p <- newPerm
+	} else {
+		return nil
+	} 
 }
 
 func main() {
@@ -89,13 +99,11 @@ func main() {
 	for level < 20 {
 		newLevel := NewSliceSet()
 		for _,perm := range curLevel {
-			ch := make(chan int)
+			p := make(chan int)
 			for a:=1; a<=level+1; a++ {
-				go localExp(perm, a, ch)
-			}
-			for newPerm := range ch{
-				// Implement add func - done?
-				if isPlane(newPerm) {newLevel.Add(newPerm)}
+				go expansionCheck(perm, a, p)
+				perm := <- p
+				if plane!=nil {newLevel.Add(newPerm)}
 			}
 			
 		}
