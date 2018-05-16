@@ -37,17 +37,15 @@ def construct(k, m, n, mat, ind, alleft):
 
 
 def countSets(k):
-	po = set()
+	po.clear()
 	m = k-1
 	n = m + k - 1
 	# Will store start of every tile added
 	mat = list()
 
 	construct(k, m, n, mat, 0, False)
-
-	print(po)
 	return len(po)
 
 
 for k in range(3,10):
-	print(countSets(k))
+	print(k, countSets(k))
