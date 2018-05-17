@@ -90,7 +90,7 @@ func isPlane (perm []int) (bool) {
 	return true
 }
 
-func checkPlane(newPerm []int, newLevel *ArraySet) {
+func checkPlane(newPerm []int, newLevel *ArraySet, c chan int) {
 	c <- 1
 	if isPlane(newPerm) {
 		var permArr [20]int
@@ -104,7 +104,7 @@ func expansion(curLevel *ArraySet, level int, p chan []int, c chan int) {
 	c <- 1
 	for perm := range curLevel.set {
 		for a:=1; a<=level+1; a++ {
-			go localExp(perm[:], a, level, p)
+			go localExp(perm[:], a, level, p, c)
 		}
 	}
 	<- c
