@@ -40,7 +40,7 @@ def reducible(k, mat):
 
 def construct(k, mat, ind):
 	for s in range(k):
-		newmat = copy.deepcopy(mat)
+		newmat = copy.copy(mat)
 		newmat.append((ind, s))
 		if ind == k-1:
 			if not reducible(k, newmat):
@@ -63,5 +63,5 @@ def countSets(k):
 
 	return len(po)
 
-for k in range(3,10):
+for k in range(3,8):
 	print(k, countSets(k))
