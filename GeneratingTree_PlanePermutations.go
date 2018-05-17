@@ -44,21 +44,23 @@ func min (a, b int) (int) {
 	return b
 }
 
-func localExp (perm []int, a int, p chan []int, c chan int) {
-	// c <- 1
-	// defer <- c
+func localExp (perm []int, a int, level int, p chan []int, c chan int) {
+	c <- 1
 
 	// Local expansion as described in the paper
-	newPerm := make([]int, len(perm)+1)
+	newPerm := make([]int, level+1)
 	for i, k := range perm {
+		if k==0 {break}
+
 		if k < a {
 			newPerm[i] = k
 		} else {
 			newPerm[i] = k+1
 		}
 	}
-	newPerm[len(perm)] = a
+	newPerm[level] = a
 	p <- newPerm
+	<- c
 }
 
 func isPlane (perm []int) (bool) {
@@ -89,21 +91,23 @@ func isPlane (perm []int) (bool) {
 }
 
 func checkPlane(newPerm []int, newLevel *ArraySet) {
-	// c <- 1
-	// defer <- c
+	c <- 1
 	if isPlane(newPerm) {
 		var permArr [20]int
 		copy(permArr[:], newPerm)
 		newLevel.Add(permArr)
 	}
+	<- c
 }
 
 func expansion(curLevel *ArraySet, level int, p chan []int, c chan int) {
+	c <- 1
 	for perm := range curLevel.set {
 		for a:=1; a<=level+1; a++ {
-			go localExp(perm[:], a, p, c)
+			go localExp(perm[:], a, level, p)
 		}
 	}
+	<- c
 }
 
 func main() {
@@ -133,7 +137,7 @@ func main() {
 		go expansion(curLevel, level, p, c)
 
 		for newPerm := range p {
-			go checkPlane(newPerm, newLevel)
+			go checkPlane(newPerm, newLevel, c)
 		}
 
 		fmt.Println(len(newLevel.set))
