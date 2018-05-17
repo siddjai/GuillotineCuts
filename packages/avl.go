@@ -1,3 +1,5 @@
+//Taken from Rosetta Code
+
 package avl
  
 // AVL tree adapted from Julienne Walker's presentation at
