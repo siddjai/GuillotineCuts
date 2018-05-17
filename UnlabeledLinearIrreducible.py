@@ -63,5 +63,5 @@ def countSets(k):
 
 	return len(po)
 
-for k in range(3,8):
+for k in range(3,10):
 	print(k, countSets(k))
