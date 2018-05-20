@@ -8,16 +8,20 @@ import copy
 po = set()
 
 def makeOrder(k, mat):
-	E = [[0 for i in range(k)] for j in range(k)]
-	# If needed, add diagonal to make an actual partial order
-	# for i in range(k): E[i][i] = 1
-	for i in range(k):
-		for j in range(k):
-			if mat[i][1] >= mat[j][1]+(k-1): E[i][j] = 1
+	# Bottleneck for computation
+
+	# E = [[0 for i in range(k)] for j in range(k)]
+	# # If needed, add diagonal to make an actual partial order
+	# # for i in range(k): E[i][i] = 1
+	# for i in range(k):
+	# 	for j in range(k):
+	# 		if mat[i][1] >= mat[j][1]+(k-1): E[i][j] = 1
 
 	ordstr = ""
 	for i in range(k):
-		ordstr += ''.join(str(e) for e in E[i])
+		for j in range(k):
+			if mat[i][1] >= mat[j][1]+(k-1): ordstr+="1"
+			else: ordstr+="0"
 
 	return ordstr
 
@@ -34,7 +38,7 @@ def makeTiling(k, mat):
 def reducible(k, mat):
 	m = k-1
 	for s in mat:
-		if s[1] in range(m) and s[1]+m-1 in range(m,2*m):
+		if s[1] < m and s[1]!=0:
 			return False
 	return True
 
@@ -44,11 +48,13 @@ def construct(k, mat, ind):
 		newmat.append((ind, s))
 		if ind == k-1:
 			if not reducible(k, newmat):
+				# t = len(po)
 				po.add(makeOrder(k, newmat))
-				# tiling = makeTiling(k, newmat)
-				# for i in range(k):
-				# 	print(''.join(str(e) for e in tiling[i]))
-				# print()
+				# if t < len(po):
+				# 	tiling = makeTiling(k, newmat)
+				# 	for i in range(k):
+				# 		print(''.join(str(e) for e in tiling[i]))
+				# 	print()
 
 		else: construct(k, newmat, ind+1)
 
@@ -63,5 +69,5 @@ def countSets(k):
 
 	return len(po)
 
-for k in range(3,10):
+for k in range(3,9):
 	print(k, countSets(k))
