@@ -1,5 +1,5 @@
 # k x n matrix
-# 1 x m tiles
+# 1 x m & 1 x 1 tiles 
 # m = k-1
 # n = m + 2k - 1
 
@@ -24,30 +24,45 @@ def makeOrder(k, mat):
 	return ordstr
 
 def makeTiling(k, mat):
-	m = k-1
-	n = 2*m
+	n = 2*(k-1)
 	tiling = [[0 for i in range(n)] for j in range(k)]
 	for s in mat:
-		for a in range(m):
+		for a in range(s[2]):
 			tiling[s[0]][s[1]+a] = 1
 
 	return tiling
 
 def reducible(k, mat):
 	# Seems to not be working
-	m = k-1
-	for i in range(2*k - 2):
+	for i in range(1, 2*k - 2):
+		flag = True
+		rleft = False
+		right = False
 		for s in mat:
-			flag = True
-			reason = False
-			if s[1] <= i and s[1]+k-1 >= i:
+			if s[1] < i and s[1]+s[2] > i:
 				flag = False
+				# print(i, "f")
 
-			if s[1]+k-1 < i or s[1] > i:
-				reason = True
+			if s[1]+s[2] <= i:
+				rleft = True
+				# print(i, "rl")
 
-		if reason and flag: return True
+			if s[1] >= i:
+				right = True
+				# print(i, "rr")
+
+		if rleft and right and flag: return True
+
 	return False
+
+def addWithTiling(k, newmat):
+	t = len(po)
+	po.add(makeOrder(k, newmat))
+	if t < len(po):
+		tiling = makeTiling(k, newmat)
+		for i in range(k):
+			print(''.join(str(e) for e in tiling[i]))
+		print()
 
 def construct(k, mat, ind):
 	for s in range(k):
@@ -55,13 +70,8 @@ def construct(k, mat, ind):
 		newmat.append((ind, s, k-1))
 		if ind == k-1:
 			if not reducible(k, newmat):
-				# t = len(po)
+				# addWithTiling(k, newmat)
 				po.add(makeOrder(k, newmat))
-				# if t < len(po):
-				# 	tiling = makeTiling(k, newmat)
-				# 	for i in range(k):
-				# 		print(''.join(str(e) for e in tiling[i]))
-				# 	print()
 
 		else: construct(k, newmat, ind+1)
 
@@ -70,13 +80,9 @@ def construct(k, mat, ind):
 		newmat.append((ind, s, 1))
 		if ind == k-1:
 			if not reducible(k, newmat):
-				# t = len(po)
+				# addWithTiling(k, newmat)
 				po.add(makeOrder(k, newmat))
-				# if t < len(po):
-				# 	tiling = makeTiling(k, newmat)
-				# 	for i in range(k):
-				# 		print(''.join(str(e) for e in tiling[i]))
-				# 	print()
+
 		else: construct(k, newmat, ind+1)
 
 def countSets(k):
@@ -89,5 +95,8 @@ def countSets(k):
 
 	return len(po)
 
-for k in range(3,10):
+# sim = [(0,0,2), (1,2,2), (2,2,2)]
+# print(reducible(3, sim))
+
+for k in range(3, 8):
 	print(k, countSets(k))
