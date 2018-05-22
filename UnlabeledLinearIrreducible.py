@@ -33,7 +33,7 @@ def makeTiling(k, mat):
 	return tiling
 
 def reducible(k, mat):
-	# Seems to not be working
+	# Bottleneck
 	for i in range(1, 2*k - 2):
 		flag = True
 		rleft = False
@@ -98,5 +98,7 @@ def countSets(k):
 # sim = [(0,0,2), (1,2,2), (2,2,2)]
 # print(reducible(3, sim))
 
-for k in range(3, 8):
+# print(4, countSets(4))
+
+for k in range(3, 6):
 	print(k, countSets(k))
