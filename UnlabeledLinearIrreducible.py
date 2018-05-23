@@ -85,6 +85,26 @@ def construct(k, mat, ind):
 
 		else: construct(k, newmat, ind+1)
 
+	# for s in range(2*k-3):
+	# 	newmat = copy.copy(mat)
+	# 	newmat.append((ind, s, 2))
+	# 	if ind == k-1:
+	# 		if not reducible(k, newmat):
+	# 			# addWithTiling(k, newmat)
+	# 			po.add(makeOrder(k, newmat))
+
+	# 	else: construct(k, newmat, ind+1)
+
+	# for s in range(2*k-4):
+	# 	newmat = copy.copy(mat)
+	# 	newmat.append((ind, s, 3))
+	# 	if ind == k-1:
+	# 		if not reducible(k, newmat):
+	# 			# addWithTiling(k, newmat)
+	# 			po.add(makeOrder(k, newmat))
+
+	# 	else: construct(k, newmat, ind+1)
+
 def countSets(k):
 	po.clear()
 
@@ -100,5 +120,5 @@ def countSets(k):
 
 # print(4, countSets(4))
 
-for k in range(3, 6):
+for k in range(4, 6):
 	print(k, countSets(k))
