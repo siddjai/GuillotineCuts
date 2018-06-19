@@ -51,21 +51,21 @@ func expansion(curLevel *ArraySet, level int, p chan []int) {
 	// new permutation are added to p
 	// curLevel and level is used to generate new permutation
 
-	fmt.Printf("Starting exapansion of level: %d \n", level)
+	//fmt.Printf("Starting exapansion of level: %d \n", level)
 
-	// To make sure that the channel p is closed after all permutations are calculated
+	// To make sure that the channel	 p is closed after all permutations are calculated
 	var wgExpansion sync.WaitGroup
 
 	for perm := range curLevel.set {
 		for a := 1; a <= level+1; a++ {
-			fmt.Printf("Starting a Perm Generation of a: %d \n", a)
+			//fmt.Printf("Starting a Perm Generation of a: %d \n", a)
 
 			// No Reason?
 			var permArr [20]int
 			copy(permArr[:], perm[:])
 
 			wgExpansion.Add(1)
-			go localExp(permArr[:], a, level, p, wgExpansion)
+			go localExp(permArr[:], a, level, p, &wgExpansion)
 
 			//time.Sleep(1 *time.Second)
 		}
@@ -73,13 +73,13 @@ func expansion(curLevel *ArraySet, level int, p chan []int) {
 
 
 	wgExpansion.Wait()
-	fmt.Printf("!!!!! Done expansion of level: %d \n", level)
+	//fmt.Printf("!!!!! Done expansion of level: %d \n", level)
 	close(p)
 }
 
-func localExp(perm []int, a int, level int, p chan []int, wgExpansion sync.WaitGroup) {
+func localExp(perm []int, a int, level int, p chan []int, wgExpansion *sync.WaitGroup) {
 
-	defer fmt.Printf("Done a new perm generation: %d\n", a)
+	//defer fmt.Printf("Done a new perm generation: %d\n", a)
 	defer wgExpansion.Done()
 
 	// Local expansion as described in the paper
@@ -101,7 +101,7 @@ func localExp(perm []int, a int, level int, p chan []int, wgExpansion sync.WaitG
 	p <- newPerm
 }
 
-func isPlane(newLevel *ArraySet, perm []int, wg sync.WaitGroup) {
+func isPlane(newLevel *ArraySet, perm []int, wg *sync.WaitGroup) {
 	// If perm is a plane, then perm is added to newLevel else we nothing is done
 
 	n := len(perm)
@@ -125,7 +125,7 @@ func isPlane(newLevel *ArraySet, perm []int, wg sync.WaitGroup) {
 		for _, k := range suffix {
 			if (k > two) && (k < M) {
 				// perm is not a plane
-				fmt.Println("Done checking the new perm: False")
+				//fmt.Println("Done checking the new perm: False")
 				wg.Done()
 				return
 			}
@@ -138,11 +138,11 @@ func isPlane(newLevel *ArraySet, perm []int, wg sync.WaitGroup) {
 	copy(permArr[:], perm)
 
 	//// To prevent race condition
-	//newLevel.mux.Lock()
-	//newLevel.Add(permArr)
-	//newLevel.mux.Unlock()
+	newLevel.mux.Lock()
+	newLevel.Add(permArr)
+	newLevel.mux.Unlock()
 
-	fmt.Println("Done checking the new perm: True")
+	//fmt.Println("Done checking the new perm: True")
 	wg.Done()
 	return
 }
@@ -156,9 +156,9 @@ func checkPlane(newLevel *ArraySet, p chan []int) {
 	var wgCheckPlace sync.WaitGroup
 
 	for newPerm := range p {
-		fmt.Println("Checking a new perm")
+		//fmt.Println("Checking a new perm")
 		wgCheckPlace.Add(1)
-		go isPlane(newLevel, newPerm, wgCheckPlace)
+		go isPlane(newLevel, newPerm, &wgCheckPlace)
 	}
 
 	wgCheckPlace.Wait()
@@ -183,7 +183,7 @@ func main() {
 	curLevel.Add(arr)
 	level := 3
 
-	for level < 5 {
+	for level < 7 {
 		newLevel := NewArraySet()
 		p := make(chan []int)
 
