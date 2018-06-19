@@ -47,9 +47,13 @@ func min(a, b int) (int) {
 }
 
 func expansion(curLevel *ArraySet, level int, p chan []int) {
+	// handles the creations of permutation concurrently
+	// new permutation are added to p
+	// curLevel and level is used to generate new permutation
 
 	fmt.Printf("Starting exapansion of level: %d \n", level)
 
+	// To make sure that the channel p is closed after all permutations are calculated
 	var wgExpansion sync.WaitGroup
 
 	for perm := range curLevel.set {
@@ -91,11 +95,15 @@ func localExp(perm []int, a int, level int, p chan []int, wgExpansion sync.WaitG
 			newPerm[i] = k + 1
 		}
 	}
+
 	newPerm[level] = a
+	// Adding a new permutation to channel p. Will be consumed by checkPlane() through for
 	p <- newPerm
 }
 
 func isPlane(newLevel *ArraySet, perm []int, wg sync.WaitGroup) {
+	// If perm is a plane, then perm is added to newLevel else we nothing is done
+
 	n := len(perm)
 	steps := make([]int, 0, n)
 	for k := 0; k < n-1; k++ {
@@ -116,12 +124,16 @@ func isPlane(newLevel *ArraySet, perm []int, wg sync.WaitGroup) {
 
 		for _, k := range suffix {
 			if (k > two) && (k < M) {
+				// perm is not a plane
 				fmt.Println("Done checking the new perm: False")
 				wg.Done()
 				return
 			}
 		}
 	}
+
+	// perm is a plane
+
 	var permArr [20]int
 	copy(permArr[:], perm)
 
@@ -132,20 +144,23 @@ func isPlane(newLevel *ArraySet, perm []int, wg sync.WaitGroup) {
 
 	fmt.Println("Done checking the new perm: True")
 	wg.Done()
+	return
 }
 
 func checkPlane(newLevel *ArraySet, p chan []int) {
+// checks all the permutation(elements) in channel p util the channel p is closed
+// Permutations in p that are  a plane are added to newLevel
 
+	// Useless it is?
 	// To make sure that all the planes are checked before returning from here
 	var wgCheckPlace sync.WaitGroup
 
 	for newPerm := range p {
 		fmt.Println("Checking a new perm")
 		wgCheckPlace.Add(1)
-
 		go isPlane(newLevel, newPerm, wgCheckPlace)
-
 	}
+
 	wgCheckPlace.Wait()
 
 }
@@ -170,7 +185,7 @@ func main() {
 
 	for level < 5 {
 		newLevel := NewArraySet()
-		p := make(chan []int, 100000)
+		p := make(chan []int)
 
 		go expansion(curLevel, level, p)
 
