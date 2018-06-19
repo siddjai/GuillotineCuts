@@ -8,6 +8,9 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
+	"os"
+	"runtime/pprof"
 )
 
 // struct to mimick set in Python
@@ -22,18 +25,24 @@ func NewArraySet() *ArraySet {
 }
 
 func (set *ArraySet) Add(p [20]int) bool {
+	set.mux.Lock()
 	_, found := set.set[p]
 	set.set[p] = true
+	set.mux.Unlock()
 	return !found //False if it existed already
 }
 
 func (set *ArraySet) Get(i [20]int) bool {
+	set.mux.Lock()
 	_, found := set.set[i]
+	set.mux.Unlock()
 	return found //true if it existed already
 }
 
 func (set *ArraySet) Remove(i [20]int) {
+	set.mux.Lock()
 	delete(set.set, i)
+	set.mux.Unlock()
 }
 
 // -----
@@ -119,6 +128,7 @@ func isPlane(newLevel *ArraySet, perm []int, wg *sync.WaitGroup) {
 		m, M := perm[s], perm[s+1]
 		two := 1000
 		prefix, suffix := perm[:s], perm[s+2:]
+
 		for _, k := range prefix {
 			if (k > m) && (k < M-1) {
 				two = min(k, two)
@@ -140,10 +150,7 @@ func isPlane(newLevel *ArraySet, perm []int, wg *sync.WaitGroup) {
 	var permArr [20]int
 	copy(permArr[:], perm)
 
-	//// To prevent race condition
-	newLevel.mux.Lock()
 	newLevel.Add(permArr)
-	newLevel.mux.Unlock()
 
 	//fmt.Println("Done checking the new perm: True")
 	wg.Done()
@@ -168,7 +175,23 @@ func checkPlane(newLevel *ArraySet, p chan []int) {
 
 }
 
+func timeTrack(start time.Time, msg string) {
+	elapsed := time.Since(start)
+	fmt.Println(msg, ":", elapsed)
+}
+
+
 func main() {
+
+	defer timeTrack(time.Now(), "MAIN")
+
+	pprof.StartCPUProfile(os.Stderr)
+	defer pprof.StopCPUProfile()
+	//
+	//trace.Start(os.Stderr)
+	//defer trace.Stop()
+
+
 
 	procs := 4
 
@@ -188,11 +211,11 @@ func main() {
 	curLevel.Add(arr)
 	level := 3
 
-	for level < 9 {
+	for level < 10 {
 		newLevel := NewArraySet()
 		p := make(chan []int)
 
-		c := make(chan bool, procs)
+		c := make(chan bool, 2*procs)
 
 		go expansion(curLevel, level, p, c)
 
