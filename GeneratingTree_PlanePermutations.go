@@ -6,30 +6,30 @@
 package main
 
 import (
-    "fmt"
-    "runtime"
+	"fmt"
+	"sync"
 )
 
 // struct to mimick set in Python
 // code from https://play.golang.org/p/_FvECoFvhq
 type ArraySet struct {
 	set map[[20]int]bool
+	mux sync.Mutex
 }
 
 func NewArraySet() *ArraySet {
-	return &ArraySet{make(map[[20]int]bool)}
+	return &ArraySet{set: make(map[[20]int]bool)}
 }
 
 func (set *ArraySet) Add(p [20]int) bool {
 	_, found := set.set[p]
 	set.set[p] = true
-	return !found	//False if it existed already
+	return !found //False if it existed already
 }
-
 
 func (set *ArraySet) Get(i [20]int) bool {
 	_, found := set.set[i]
-	return found	//true if it existed already
+	return found //true if it existed already
 }
 
 func (set *ArraySet) Remove(i [20]int) {
@@ -39,106 +39,157 @@ func (set *ArraySet) Remove(i [20]int) {
 // -----
 
 // func to mimick min in Python
-func min (a, b int) (int) {
-	if a<=b {return a}
+func min(a, b int) (int) {
+	if a <= b {
+		return a
+	}
 	return b
 }
 
-func localExp (perm []int, a int, level int, p chan []int, c chan int) {
-	c <- 1
+func expansion(curLevel *ArraySet, level int, p chan []int) {
+	// handles the creations of permutation concurrently
+	// new permutation are added to p
+	// curLevel and level is used to generate new permutation
+
+	//fmt.Printf("Starting exapansion of level: %d \n", level)
+
+	// To make sure that the channel	 p is closed after all permutations are calculated
+	var wgExpansion sync.WaitGroup
+
+	for perm := range curLevel.set {
+		for a := 1; a <= level+1; a++ {
+			//fmt.Printf("Starting a Perm Generation of a: %d \n", a)
+
+			// No Reason?
+			var permArr [20]int
+			copy(permArr[:], perm[:])
+
+			wgExpansion.Add(1)
+			go localExp(permArr[:], a, level, p, &wgExpansion)
+
+			//time.Sleep(1 *time.Second)
+		}
+	}
+
+
+	wgExpansion.Wait()
+	//fmt.Printf("!!!!! Done expansion of level: %d \n", level)
+	close(p)
+}
+
+func localExp(perm []int, a int, level int, p chan []int, wgExpansion *sync.WaitGroup) {
+
+	//defer fmt.Printf("Done a new perm generation: %d\n", a)
+	defer wgExpansion.Done()
 
 	// Local expansion as described in the paper
 	newPerm := make([]int, level+1)
 	for i, k := range perm {
-		if k==0 {break}
+		if k == 0 {
+			break
+		}
 
 		if k < a {
 			newPerm[i] = k
 		} else {
-			newPerm[i] = k+1
+			newPerm[i] = k + 1
 		}
 	}
+
 	newPerm[level] = a
+	// Adding a new permutation to channel p. Will be consumed by checkPlane() through for
 	p <- newPerm
-	<- c
 }
 
-func isPlane (perm []int) (bool) {
+func isPlane(newLevel *ArraySet, perm []int, wg *sync.WaitGroup) {
+	// If perm is a plane, then perm is added to newLevel else we nothing is done
+
 	n := len(perm)
 	steps := make([]int, 0, n)
-	for k:=0; k<n-1; k++ {
-		if perm[k] < perm[k+1] - 1 {steps = append(steps, k)}
+	for k := 0; k < n-1; k++ {
+		if perm[k] < perm[k+1]-1 {
+			steps = append(steps, k)
+		}
 	}
 
-	for _,s := range steps {
+	for _, s := range steps {
 		m, M := perm[s], perm[s+1]
 		two := 1000
 		prefix, suffix := perm[:s], perm[s+2:]
-		for _,k := range prefix {
-			if (k > m) && (k < M - 1) {
+		for _, k := range prefix {
+			if (k > m) && (k < M-1) {
 				two = min(k, two)
 			}
 		}
 
-		for _,k := range suffix {
+		for _, k := range suffix {
 			if (k > two) && (k < M) {
-				return false
+				// perm is not a plane
+				//fmt.Println("Done checking the new perm: False")
+				wg.Done()
+				return
 			}
 		}
 	}
 
-	return true
+	// perm is a plane
+
+	var permArr [20]int
+	copy(permArr[:], perm)
+
+	//// To prevent race condition
+	newLevel.mux.Lock()
+	newLevel.Add(permArr)
+	newLevel.mux.Unlock()
+
+	//fmt.Println("Done checking the new perm: True")
+	wg.Done()
+	return
 }
 
-func checkPlane(newPerm []int, newLevel *ArraySet, c chan int) {
-	c <- 1
-	if isPlane(newPerm) {
-		var permArr [20]int
-		copy(permArr[:], newPerm)
-		newLevel.Add(permArr)
-	}
-	<- c
-}
+func checkPlane(newLevel *ArraySet, p chan []int) {
+// checks all the permutation(elements) in channel p util the channel p is closed
+// Permutations in p that are  a plane are added to newLevel
 
-func expansion(curLevel *ArraySet, level int, p chan []int, c chan int) {
-	c <- 1
-	for perm := range curLevel.set {
-		for a:=1; a<=level+1; a++ {
-			go localExp(perm[:], a, level, p, c)
-		}
+	// Useless it is?
+	// To make sure that all the planes are checked before returning from here
+	var wgCheckPlace sync.WaitGroup
+
+	for newPerm := range p {
+		//fmt.Println("Checking a new perm")
+		wgCheckPlace.Add(1)
+		go isPlane(newLevel, newPerm, &wgCheckPlace)
 	}
-	<- c
+
+	wgCheckPlace.Wait()
+
 }
 
 func main() {
-	procs := 2
-	runtime.GOMAXPROCS(procs)
 
 	curLevel := NewArraySet()
 	var arr [20]int
-	copy(arr[:], []int{1,2,3})
+	copy(arr[:], []int{1, 2, 3})
 	curLevel.Add(arr)
-	copy(arr[:], []int{1,3,2})
+	copy(arr[:], []int{1, 3, 2})
 	curLevel.Add(arr)
-	copy(arr[:], []int{2,1,3})
+	copy(arr[:], []int{2, 1, 3})
 	curLevel.Add(arr)
-	copy(arr[:], []int{3,1,2})
+	copy(arr[:], []int{3, 1, 2})
 	curLevel.Add(arr)
-	copy(arr[:], []int{2,3,1})
+	copy(arr[:], []int{2, 3, 1})
 	curLevel.Add(arr)
-	copy(arr[:], []int{3,2,1})
+	copy(arr[:], []int{3, 2, 1})
 	curLevel.Add(arr)
 	level := 3
 
-	c := make(chan int, procs)
-	for level < 20 {
+	for level < 7 {
 		newLevel := NewArraySet()
-		p := make(chan []int, 100)
-		go expansion(curLevel, level, p, c)
+		p := make(chan []int)
 
-		for newPerm := range p {
-			go checkPlane(newPerm, newLevel, c)
-		}
+		go expansion(curLevel, level, p)
+
+		checkPlane(newLevel, p)
 
 		fmt.Println(len(newLevel.set))
 		curLevel = newLevel
