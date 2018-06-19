@@ -38,8 +38,9 @@ func (p Perm) Size() int {
 
 func (p Perm) String() string {
 	var b strings.Builder
+	b.Grow(32)
 	for _, v := range p {
-		fmt.Fprintf(&b, "%d,", v)
+		b.WriteString(string(v))
 	}
 	return b.String()
 }
