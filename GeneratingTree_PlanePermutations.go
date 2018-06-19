@@ -25,6 +25,7 @@ func NewArraySet() *ArraySet {
 }
 
 func (set *ArraySet) Add(p [20]int) bool {
+
 	set.mux.Lock()
 	_, found := set.set[p]
 	set.set[p] = true
