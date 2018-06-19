@@ -46,7 +46,7 @@ func min(a, b int) (int) {
 	return b
 }
 
-func expansion(curLevel *ArraySet, level int, p chan []int) {
+func expansion(curLevel *ArraySet, level int, p chan []int, c chan bool) {
 	// handles the creations of permutation concurrently
 	// new permutation are added to p
 	// curLevel and level is used to generate new permutation
@@ -65,7 +65,8 @@ func expansion(curLevel *ArraySet, level int, p chan []int) {
 			copy(permArr[:], perm[:])
 
 			wgExpansion.Add(1)
-			go localExp(permArr[:], a, level, p, &wgExpansion)
+			c <- true
+			go localExp(permArr[:], a, level, p, &wgExpansion, c)
 
 			//time.Sleep(1 *time.Second)
 		}
@@ -77,7 +78,7 @@ func expansion(curLevel *ArraySet, level int, p chan []int) {
 	close(p)
 }
 
-func localExp(perm []int, a int, level int, p chan []int, wgExpansion *sync.WaitGroup) {
+func localExp(perm []int, a int, level int, p chan []int, wgExpansion *sync.WaitGroup, c chan bool) {
 
 	//defer fmt.Printf("Done a new perm generation: %d\n", a)
 	defer wgExpansion.Done()
@@ -99,6 +100,8 @@ func localExp(perm []int, a int, level int, p chan []int, wgExpansion *sync.Wait
 	newPerm[level] = a
 	// Adding a new permutation to channel p. Will be consumed by checkPlane() through for
 	p <- newPerm
+
+	<- c
 }
 
 func isPlane(newLevel *ArraySet, perm []int, wg *sync.WaitGroup) {
@@ -167,6 +170,8 @@ func checkPlane(newLevel *ArraySet, p chan []int) {
 
 func main() {
 
+	procs := 4
+
 	curLevel := NewArraySet()
 	var arr [20]int
 	copy(arr[:], []int{1, 2, 3})
@@ -183,11 +188,13 @@ func main() {
 	curLevel.Add(arr)
 	level := 3
 
-	for level < 7 {
+	for level < 9 {
 		newLevel := NewArraySet()
 		p := make(chan []int)
 
-		go expansion(curLevel, level, p)
+		c := make(chan bool, procs)
+
+		go expansion(curLevel, level, p, c)
 
 		checkPlane(newLevel, p)
 
