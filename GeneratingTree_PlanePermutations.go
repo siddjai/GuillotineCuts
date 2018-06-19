@@ -8,7 +8,6 @@ package main
 import (
 	"fmt"
 	"sync"
-	"time"
 )
 
 // struct to mimick set in Python
@@ -47,12 +46,11 @@ func min(a, b int) (int) {
 	return b
 }
 
-func expansion(curLevel *ArraySet, level int, p chan []int, c chan int) {
+func expansion(curLevel *ArraySet, level int, p chan []int) {
 
 	fmt.Printf("Starting exapansion of level: %d \n", level)
 
 	var wgExpansion sync.WaitGroup
-	wgExpansion.Add(len(curLevel.set)*(level+1) - 1)
 
 	for perm := range curLevel.set {
 		for a := 1; a <= level+1; a++ {
@@ -62,15 +60,20 @@ func expansion(curLevel *ArraySet, level int, p chan []int, c chan int) {
 			var permArr [20]int
 			copy(permArr[:], perm[:])
 
-			go localExp(permArr[:], a, level, p, c, wgExpansion)
+			wgExpansion.Add(1)
+			go localExp(permArr[:], a, level, p, wgExpansion)
+
+			//time.Sleep(1 *time.Second)
 		}
 	}
+
+
 	wgExpansion.Wait()
 	fmt.Printf("!!!!! Done expansion of level: %d \n", level)
 	close(p)
 }
 
-func localExp(perm []int, a int, level int, p chan []int, c chan int, wgExpansion sync.WaitGroup) {
+func localExp(perm []int, a int, level int, p chan []int, wgExpansion sync.WaitGroup) {
 
 	defer fmt.Printf("Done a new perm generation: %d\n", a)
 	defer wgExpansion.Done()
@@ -131,7 +134,7 @@ func isPlane(newLevel *ArraySet, perm []int, wg sync.WaitGroup) {
 	wg.Done()
 }
 
-func checkPlane(newLevel *ArraySet, p chan []int, c chan int) {
+func checkPlane(newLevel *ArraySet, p chan []int) {
 
 	// To make sure that all the planes are checked before returning from here
 	var wgCheckPlace sync.WaitGroup
@@ -165,18 +168,13 @@ func main() {
 	curLevel.Add(arr)
 	level := 3
 
-	c := make(chan int)
 	for level < 5 {
 		newLevel := NewArraySet()
 		p := make(chan []int, 100000)
 
-		expansion(curLevel, level, p, c)
+		go expansion(curLevel, level, p)
 
-		fmt.Println("Done Expansion")
-		time.Sleep(5 * time.Second)
-
-
-		checkPlane(newLevel, p, c)
+		checkPlane(newLevel, p)
 
 		fmt.Println(len(newLevel.set))
 		curLevel = newLevel
