@@ -8,7 +8,6 @@ import (
 	"runtime/pprof"
 	"runtime/trace"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -48,7 +47,6 @@ func (p Perm) String() string {
 // Try with this first, if shit hits the fan
 // Try with sync.Map.
 type Set struct {
-	rwm sync.RWMutex
 	set map[string]Perm
 }
 
@@ -59,8 +57,6 @@ func NewSet() *Set {
 }
 
 func (s *Set) Add(p Perm) bool {
-	s.rwm.Lock()
-	defer s.rwm.Unlock()
 	str := p.String()
 	_, prs := s.set[str]
 	s.set[str] = p
@@ -68,28 +64,20 @@ func (s *Set) Add(p Perm) bool {
 }
 
 func (s *Set) Get(p Perm) bool {
-	s.rwm.RLock()
-	defer s.rwm.RUnlock()
 	_, prs := s.set[p.String()]
 	return prs
 }
 
 func (s *Set) Remove(p Perm) {
-	s.rwm.Lock()
-	defer s.rwm.Unlock()
 	delete(s.set, p.String())
 }
 
 func (s *Set) Size() int {
-	s.rwm.RLock()
-	defer s.rwm.RUnlock()
 	return len(s.set)
 }
 
 func (s *Set) Values() []Perm {
 	vals := make([]Perm, 0, s.Size())
-	s.rwm.RLock() // Dont push it above the s.Size(), as it is deadlock
-	defer s.rwm.RUnlock()
 
 	for _, v := range s.set {
 		vals = append(vals, v)
