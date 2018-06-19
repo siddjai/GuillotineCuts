@@ -113,11 +113,13 @@ func min(a, b int) int {
 }
 
 func isPlane(perm Perm) bool {
-	steps := make(Perm, 0)
+	steps := make(Perm, len(perm)-1)
 
+	var i int
 	for k := 0; k < len(perm)-1; k++ {
 		if perm[k] < perm[k+1]-1 {
-			steps = append(steps, k)
+			steps[i] = k
+			i++
 		}
 	}
 
