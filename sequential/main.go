@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+const maxPerm = 20
+
 var (
 	maxLevel = flag.Int("l", 10, "MAX Level")
 	p        = flag.Bool("pprof", false, "Enable Profiling")
@@ -87,16 +89,18 @@ func (s *Set) Values() []Perm {
 }
 
 func localExp(perm Perm, a int) Perm {
-	newPerm := make(Perm, 0)
+	newPerm := make(Perm, len(perm)+1)
 
-	for _, k := range perm {
+	var i int
+	for i = 0; i < len(perm); i++ {
+		k := perm[i]
 		if k < a {
-			newPerm = append(newPerm, k)
+			newPerm[i] = k
 		} else {
-			newPerm = append(newPerm, k+1)
+			newPerm[i] = k + 1
 		}
 	}
-	newPerm = append(newPerm, a)
+	newPerm[i] = a
 	return newPerm
 }
 
