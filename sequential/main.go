@@ -1,9 +1,21 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log"
+	"os"
+	"runtime/pprof"
+	"runtime/trace"
 	"strings"
 	"sync"
+	"time"
+)
+
+var (
+	maxLevel = flag.Int("l", 10, "MAX Level")
+	p        = flag.Bool("pprof", false, "Enable Profiling")
+	t        = flag.Bool("trace", false, "Enable Tracing")
 )
 
 type Perm []int
@@ -150,12 +162,36 @@ func initCurLevel(s *Set) {
 var curLevel *Set
 
 func main() {
+	flag.Parse()
+	defer trackTime(time.Now(), "MAIN")
+
+	if *p {
+		log.Println("Profiling Enabled")
+		pf, err := os.Create("pprof.out")
+		if err != nil {
+			log.Fatal("Could not create pprof file")
+		}
+		defer pf.Close()
+		pprof.StartCPUProfile(pf)
+		defer pprof.StopCPUProfile()
+	}
+
+	if *t {
+		log.Println("Tracing Enabled")
+		tf, err := os.Create("trace.out")
+		if err != nil {
+			log.Fatal("Could not create trace file")
+		}
+		defer tf.Close()
+		trace.Start(tf)
+		defer trace.Stop()
+	}
 
 	curLevel = NewSet()
 	initCurLevel(curLevel)
 	level := 3
 
-	for level < 20 {
+	for level < *maxLevel {
 		newLevel := NewSet()
 		for _, perm := range curLevel.Values() {
 			for a := 1; a < level+2; a++ {
@@ -170,4 +206,8 @@ func main() {
 		curLevel = newLevel
 		level++
 	}
+}
+
+func trackTime(s time.Time, msg string) {
+	fmt.Println(msg, ":", time.Since(s))
 }
