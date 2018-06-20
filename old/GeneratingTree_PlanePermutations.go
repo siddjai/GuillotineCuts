@@ -39,7 +39,7 @@ func (set *ArraySet) Remove(i [20]int) {
 // -----
 
 // func to mimick min in Python
-func min(a, b int) (int) {
+func min(a, b int) int {
 	if a <= b {
 		return a
 	}
@@ -72,7 +72,6 @@ func expansion(curLevel *ArraySet, level int, p chan []int, c chan bool) {
 		}
 	}
 
-
 	wgExpansion.Wait()
 	//fmt.Printf("!!!!! Done expansion of level: %d \n", level)
 	close(p)
@@ -101,7 +100,7 @@ func localExp(perm []int, a int, level int, p chan []int, wgExpansion *sync.Wait
 	// Adding a new permutation to channel p. Will be consumed by checkPlane() through for
 	p <- newPerm
 
-	<- c
+	<-c
 }
 
 func isPlane(newLevel *ArraySet, perm []int, wg *sync.WaitGroup) {
@@ -151,8 +150,8 @@ func isPlane(newLevel *ArraySet, perm []int, wg *sync.WaitGroup) {
 }
 
 func checkPlane(newLevel *ArraySet, p chan []int) {
-// checks all the permutation(elements) in channel p util the channel p is closed
-// Permutations in p that are  a plane are added to newLevel
+	// checks all the permutation(elements) in channel p util the channel p is closed
+	// Permutations in p that are  a plane are added to newLevel
 
 	// Useless it is?
 	// To make sure that all the planes are checked before returning from here
@@ -170,22 +169,22 @@ func checkPlane(newLevel *ArraySet, p chan []int) {
 
 func main() {
 
-	procs := 4
-
 	curLevel := NewArraySet()
-	var arr [20]int
-	copy(arr[:], []int{1, 2, 3})
-	curLevel.Add(arr)
-	copy(arr[:], []int{1, 3, 2})
-	curLevel.Add(arr)
-	copy(arr[:], []int{2, 1, 3})
-	curLevel.Add(arr)
-	copy(arr[:], []int{3, 1, 2})
-	curLevel.Add(arr)
-	copy(arr[:], []int{2, 3, 1})
-	curLevel.Add(arr)
-	copy(arr[:], []int{3, 2, 1})
-	curLevel.Add(arr)
+	var arr1, arr2, arr3, arr4, arr5, arr6 [20]int
+	copy(arr1[:], []int{1, 2, 3})
+	copy(arr2[:], []int{1, 3, 2})
+	copy(arr3[:], []int{2, 1, 3})
+	copy(arr4[:], []int{3, 1, 2})
+	copy(arr5[:], []int{2, 3, 1})
+	copy(arr6[:], []int{3, 2, 1})
+
+	curLevel.Add(arr1)
+	curLevel.Add(arr2)
+	curLevel.Add(arr3)
+	curLevel.Add(arr4)
+	curLevel.Add(arr5)
+	curLevel.Add(arr6)
+
 	level := 3
 
 	for level < 9 {
