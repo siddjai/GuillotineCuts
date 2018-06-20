@@ -1,3 +1,8 @@
+// Plane permutations are those which avoid the pattern 213'54
+// Avoiding 213'54 is equivalent to avoiding 2-14-3
+// This generating tree based enumeration is based on the following paper:
+// https://arxiv.org/pdf/1702.04529.pdf
+
 package main
 
 import (
