@@ -17,37 +17,37 @@ import (
 	"sort"
 )
 
-// Taken from StackOverflow
-// https://stackoverflow.com/questions/23192262/how-would-you-set-and-clear-a-single-bit-in-go
-func setBit(n int, pos uint) int {
-    n |= (1 << pos)
-    return n
-}
+// // Taken from StackOverflow
+// // https://stackoverflow.com/questions/23192262/how-would-you-set-and-clear-a-single-bit-in-go
+// func setBit(n int, pos uint) int {
+//     n |= (1 << pos)
+//     return n
+// }
 
-func clearBit(n int, pos uint) int {
-    return n &^ (1 << pos)
-}
+// func clearBit(n int, pos uint) int {
+//     return n &^ (1 << pos)
+// }
 
-func hasBit(n int, pos uint) bool {
-    val := n & (1 << pos)
-    return (val > 0)
-}
+// func hasBit(n int, pos uint) bool {
+//     val := n & (1 << pos)
+//     return (val > 0)
+// }
 
-// --- end of code snippet
+// // --- end of code snippet
 
-func encode(labels []int) {
-	// Expectation: labels will be <= 20
-	// Therefore resulting number can be stored in <int>
-	e := 0
-	for _, l := range labels {
-		e = setBit(e, l)
-	}
+// func encode(labels []int) {
+// 	// Expectation: labels will be <= 20
+// 	// Therefore resulting number can be stored in <int>
+// 	e := 0
+// 	for _, l := range labels {
+// 		e = setBit(e, l)
+// 	}
 
-	return e
-}
+// 	return e
+// }
 
-dp_seq := make([int][][3]int)
-dp_kill := make([int]int)
+var dp_seq map[[4]int][][6]int
+var dp_kill map[[4]int]int
 
 // var reader *bufio.Reader = bufio.NewReader(os.Stdin)
 // func scanf(f string, a ...interface{}) { fmt.Fscanf(reader, f, a...) }
@@ -68,7 +68,7 @@ func intervalIntersect(i1 [2]int, i2 [2]int) (bool){
 	return false
 }
 
-func optimalCut(rects [][4]int, x []int, y []int, code int, seq [][3]int) ([][3]int, int){
+func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][6]int, int){
 	// rects : Rectangles in the current set
 	// x : sorted list of X coordinates
 	// y : sorted list of Y coordinates
@@ -84,14 +84,159 @@ func optimalCut(rects [][4]int, x []int, y []int, code int, seq [][3]int) ([][3]
 		return seq, 0
 	}
 
-	killed, ok := dp_kill[code]
+	killed, ok := dp_kill[reg]
 	if ok {
-		sseq := dp_seq[code]
+		sseq := dp_seq[reg]
 		return sseq, killed
 	}
 
-	return seq, 0
+	m := len(x) + len(y) - 4
+	cuts := make([]int, m)
+	seqs := make(map[int][][6]int)
 
+	for i:=0; i<m; i++ {
+		//Arbritary constant
+		cuts[i] = 1000
+	}
+
+	for k:=0; k<len(x)-2; k++ {
+		var rects1 [][4]int
+		var rects2 [][4]int
+		boundary := false
+		for _, rec := range rects {
+
+			if rec[0] < x[1+k] {
+				rects1 = append(rects1, rec)
+			} else {
+				rects2 = append(rects2, rec)
+			}
+
+			if rec[1] == x[1+k] {boundary = true}
+		}
+
+		xx1 := x[:2+k]
+		xx2 := x[2+k:]
+		if boundary { xx2 = append([]int{x[1+k]}, xx2...) }
+
+		var yy1 []int
+		for _, rec := range rects1 {
+			yy1 = append(yy1, rec[2])
+			yy1 = append(yy1, rec[3])
+		}
+
+		reg1 := reg 
+		reg1[1] = x[1+k]
+
+		var yy2 []int
+		for _, rec := range rects2 {
+			yy2 = append(yy2, rec[2])
+			yy2 = append(yy2, rec[3])
+		}
+
+		reg2 := reg 
+		reg2[0] = x[1+k]
+
+		sort.Slice(yy1, func(i, j int) bool { return i<j })
+		sort.Slice(yy2, func(i, j int) bool { return i<j })
+
+		seq1, kill1 := optimalCut(rects1, xx1, yy1, reg1, seq)
+		seq2, kill2 := optimalCut(rects2, xx2, yy2, reg2, seq)
+		kill3 := 0
+		for _, rec := range rects {
+			var xi [2]int
+			xi[0] = rec[0]
+			xi[1] = rec[1]
+			if intervalIntersect(xi, [2]int{x[1+k], x[1+k]}) {
+				kill3++
+			}
+		}	
+
+		cuts[k] = kill1 + kill2 + kill3
+
+		seq = append(seq, seq1...)
+		seq = append(seq, seq2...)
+		seqs[k] = seq
+
+	}
+
+	for k:=0; k<len(y)-2; k++ {
+		var rects1 [][4]int
+		var rects2 [][4]int
+		boundary := false
+		for _, rec := range rects {
+
+			if rec[2] < y[1+k] {
+				rects1 = append(rects1, rec)
+			} else {
+				rects2 = append(rects2, rec)
+			}
+
+			if rec[3] == y[1+k] {boundary = true}
+		}
+
+		yy1 := x[:2+k]
+		yy2 := x[2+k:]
+		if boundary { yy2 = append([]int{y[1+k]}, yy2...) }
+
+		var xx1 []int
+		for _, rec := range rects1 {
+			xx1 = append(xx1, rec[0])
+			xx1 = append(xx1, rec[1])
+		}
+
+		reg1 := reg 
+		reg1[3] = y[1+k]
+
+		var xx2 []int 
+		for _, rec := range rects2 {
+			xx2 = append(xx2, rec[0])
+			xx2 = append(xx2, rec[1])
+		}
+
+		reg2 := reg 
+		reg2[2] = y[1+k]
+
+		sort.Slice(xx1, func(i, j int) bool { return i<j })
+		sort.Slice(xx2, func(i, j int) bool { return i<j })
+
+		seq1, kill1 := optimalCut(rects1, xx1, yy1, reg1, seq)
+		seq2, kill2 := optimalCut(rects2, xx2, yy2, reg2, seq)
+		kill3 := 0
+		for _, rec := range rects {
+			var yi [2]int 
+			yi[0] = rec[2]
+			yi[1] = rec[3]
+			if intervalIntersect(yi, [2]int{y[1+k], y[1+k]}) {
+				kill3++
+			}
+		}
+		cuts[len(x) - 2 + k] = kill1 + kill2 + kill3
+
+		seq = append(seq, seq1...)
+		seq = append(seq, seq2...)
+		seqs[len(x) - 2 + k] = seq
+	}
+
+	minPtr := 0
+	for k:=0; k<m; k++ {
+		if cuts[k] < cuts[minPtr] {minPtr = k}
+	}
+
+	newLine := [2]int{1000, 0}
+	if minPtr < len(x) - 2 {
+		newLine = [2]int{x[1+minPtr], 0}
+	} else {
+		newLine = [2]int{y[minPtr - len(x)], 1}
+	}
+
+	dp_kill[reg] = cuts[minPtr]
+	var cur [][6]int
+	cur = append(cur, [6]int{reg[0], reg[1], reg[2], reg[3], newLine[0], newLine[1]})
+	best_seq := seqs[minPtr]
+	seqf := append(cur, best_seq...)
+	dp_seq[reg] = seqf
+
+	return seqf, cuts[minPtr]
 
 }
 
@@ -122,6 +267,9 @@ func main() {
 	// }
 	var rects = [][4]int{{3, 4, 2, 4}, {2, 4, 0, 2}, {2, 3, 2, 4}, {0, 2, 0, 4}}
 
+	dp_seq = make(map[[4]int][][6]int)
+	dp_kill = make(map[[4]int]int)
+
 	if sanityCheck(rects) {
 		var x []int
 		var y []int
@@ -134,8 +282,8 @@ func main() {
 
 		sort.Slice(x, func(i, j int) bool { return i<j })
 		sort.Slice(y, func(i, j int) bool { return i<j })
-		code 
-		var seq [][3]int
+		reg := [4]int{x[0], x[len(x)-1], y[0], y[len(x)-1]}
+		var seq [][6]int
 
 		fin_seq, killed := optimalCut(rects, x, y, reg, seq)
 		fmt.Println(fin_seq)

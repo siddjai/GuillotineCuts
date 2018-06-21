@@ -151,11 +151,11 @@ def optimalCut(rects, x, y, reg, seq):
 		if cuts[k] < cuts[minPtr]: minPtr = k
 
 	newLine = (1000, 0)
-	if minPtr < len(x) - 1: newLine = (x[1 + minPtr], 0)
+	if minPtr < len(x) - 2: newLine = (x[1 + minPtr], 0)
 	else: newLine = (y[minPtr - len(x)], 1)
 
 	# Add to dictionary here
-	dp[key_rects] = ([newLine] + seqs[minPtr], cuts[minPtr])
+	dp[key_rects] = ([reg, newLine] + seqs[minPtr], cuts[minPtr])
 	return [[reg,newLine]] + seqs[minPtr], cuts[minPtr]
 
 
