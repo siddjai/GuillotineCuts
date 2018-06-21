@@ -77,7 +77,7 @@ func main() {
 	}
 	//var rects = [][4]int{{3, 4, 2, 4}, {2, 4, 0, 2}, {2, 3, 2, 4}, {0, 2, 0, 4}}
 
-	if sanityCheck(rects)==true {
+	if sanityCheck(rects) {
 		var x []int
 		var y []int
 		for _, tup := range rects {

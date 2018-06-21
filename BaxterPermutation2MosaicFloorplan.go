@@ -26,47 +26,75 @@ func main() {
 		perm[i] = k
 	}
 
-	rects := make(map[int][4]int)
-	rects[perm[0]] = [4]int{0,n,0,n}
-	below = make(map[int]int)
-	left = make(map[int]int)
+	// n := 4
+	// perm := [4]int{2, 4, 1, 3}
+
+	rects := make([][4]int, n+1)
+	rects[perm[0]] = [4]int{0, n, 0, n}
+	below := make(map[int]int)
+	left := make(map[int]int)
 	prevlabel := perm[0]
 
-	for k:=1; k<n; k++ {
+	for k := 1; k < n; k++ {
 		p := perm[k]
 		if p < prevlabel {
 			oldrect := rects[prevlabel]
-			middle := (oldrect[2] + oldrect[3])/2
+			middle := (oldrect[2] + oldrect[3]) / 2
 			rects[p] = oldrect
 			rects[p][2] = middle
 			rects[prevlabel][3] = middle
 			below[p] = prevlabel
 
-			//Implement for (while)
+			_, ok := left[p]
+			for ok && left[p] < p {
+				l := left[p]
+
+				rects[p][0] = rects[l][0]
+
+				rects[l][3] = rects[p][2]
+
+				ll, okl := left[l]
+				if okl {
+					left[p] = ll
+				} else {
+					delete(left, p)
+				}
+
+				_, ok = left[p]
+			}
 
 			prevlabel = p
 
 		} else {
 			oldrect := rects[prevlabel]
-			middle := (oldrect[0]+oldrect[1])/2
+			middle := (oldrect[0] + oldrect[1]) / 2
 			rects[p] = oldrect
 			rects[p][0] = middle
 			rects[prevlabel][1] = middle
 			left[p] = prevlabel
 
-			//Implement for (while)
+			_, ok := below[p]
+			for ok && below[p] < p {
+				b := below[p]
+
+				rects[p][2] = rects[b][2]
+
+				rects[b][1] = rects[p][0]
+
+				bb, okb := below[b]
+				if okb {
+					below[p] = bb
+				} else {
+					delete(below, b)
+				}
+
+				_, ok = below[p]
+			}
 
 			prevlabel = p
 
 		}
 	}
 
-	fin_rects := make([][4]int, len(rects))
-    idx := 0
-    for  _, rec := range rects {
-       fin_rects[idx] = rec
-       idx++
-    }
-
-    fmt.Println(fin_rects)
+	fmt.Println(rects[1:])
 }
