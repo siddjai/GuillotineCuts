@@ -10,7 +10,7 @@
 # (x1, x2, y1, y2) where x1 is the min and x2 is the max y coordinate.
 # Similarly for y
 
-perm = [int(k) for k in input.split()]
+perm = [int(k) for k in input().split()]
 perm = tuple(perm)
 n = len(perm)
 
@@ -22,12 +22,12 @@ prevlabel = perm[0]
 for k in range(1, n):
 	if perm[k] < prevlabel:
 		oldrect = rects[prevlabel]
-		middle = (oldrect[2]+oldrect[3])/2
+		middle = (oldrect[2]+oldrect[3])//2
 		rects[perm[k]] = (oldrect[0], oldrect[1], middle, oldrect[3])
 		rects[prevlabel] = (oldrect[0], oldrect[1], oldrect[2], middle)
 		below[perm[k]] = prevlabel
 
-		while left[perm[k]] and left[perm[k]] < perm[k]:
+		while perm[k] in left and left[perm[k]] < perm[k]:
 			l = left[perm[k]]
 			leftrect = rects[l]
 
@@ -45,12 +45,12 @@ for k in range(1, n):
 		prevlabel = perm[k]
 	else:
 		oldrect = rects[prevlabel]
-		middle = (oldrect[0]+oldrect[1])/2
+		middle = (oldrect[0]+oldrect[1])//2
 		rects[perm[k]] = (middle, oldrect[1], oldrect[2], oldrect[3])
 		rects[prevlabel] = (oldrect[0], middle, oldrect[2], oldrect[3])
 		left[perm[k]] = prevlabel
 		
-		while below[perm[k]] and below[perm[k]] < perm[k]:
+		while perm[k] in below and below[perm[k]] < perm[k]:
 			b = below[perm[k]]
 			belowrect = rects[b]
 
@@ -68,3 +68,4 @@ for k in range(1, n):
 		prevlabel = perm[k]
 
 rects = set(rects.values())
+print(rects)
