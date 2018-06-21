@@ -12,9 +12,14 @@
 package main
 
 import (
+//	"bufio"
 	"fmt"
 	"sort"
 )
+
+
+// var reader *bufio.Reader = bufio.NewReader(os.Stdin)
+// func scanf(f string, a ...interface{}) { fmt.Fscanf(reader, f, a...) }
 
 func intervalIntersect(i1 [2]int, i2 [2]int) (bool){
 	x1 := i1[0]
@@ -62,8 +67,15 @@ func sanityCheck(rects [][4]int) (bool){
 
 func main() {
 	// Input in Go syntax
-	// var n = 4
-	var rects = [][4]int{{3, 4, 2, 4}, {2, 4, 0, 2}, {2, 3, 2, 4}, {0, 2, 0, 4}}
+	var n int
+	fmt.Scanf("%d\n", &n)
+	var rects [][4]int
+	for i:=0; i<n; i++ {
+		var x1, x2, y1, y2 int
+		fmt.Scanf("%d %d %d %d\n", &x1, &x2, &y1, &y2)
+		rects = append(rects, [4]int{x1, x2, y1, y2})
+	}
+	//var rects = [][4]int{{3, 4, 2, 4}, {2, 4, 0, 2}, {2, 3, 2, 4}, {0, 2, 0, 4}}
 
 	if sanityCheck(rects)==true {
 		var x []int
