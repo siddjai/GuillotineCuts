@@ -21,10 +21,6 @@ var (
 
 type Perm []int
 
-type Data struct {
-	perm  Perm
-	level int
-}
 
 func NewPerm(islice []int) Perm {
 	p := make(Perm, 0)
@@ -52,7 +48,8 @@ func (p Perm) String() string {
 }
 
 var levelPermCount = make(map[int]int)
-var lock sync.RWMutex
+var lock sync.Mutex
+
 
 // Try with this first, if shit hits the fan
 // Try with sync.Map.
@@ -129,7 +126,7 @@ func min(a, b int) int {
 }
 
 func isPlane(perm Perm) bool {
-	steps := make(Perm, 0)
+	steps := make(Perm,0)
 
 	for k := 0; k < len(perm)-1; k++ {
 		if perm[k] < perm[k+1]-1 {
@@ -200,56 +197,37 @@ func main() {
 	curLevel = NewSet()
 	initCurLevel(curLevel)
 
-	// In order to use our pool of workers we need to send
-	// them work and collect their results. We make 2
-	// channels for this.
-	jobs := make(chan *Data, 100)
-	results := make(chan *Data, 100)
-
-	for w := 1; w <= *procs; w++ {
-		go worker(jobs, results)
-	}
-
-	// Here we send 5 `jobs` and then `close` that
-	// channel to indicate that's all the work we have.
+	var wg sync.WaitGroup
 	for _, perm := range curLevel.Values() {
-		jobs <- &Data{perm: perm, level: 3}
+		wg.Add(1)
+		go worker(perm,3, &wg)
 	}
 
-
-	// Finally we collect all the results of the work and give make jobs
-	for data := range results{
-		fmt.Println(levelPermCount)
-		if data.level == *maxLevel {
-			close(jobs)
-			break
-		}
-		jobs <- data
-	}
-
-	//fmt.Println(levelPermCount)
+	wg.Wait()
+	fmt.Println(levelPermCount)
 
 }
 
-func worker(jobs <-chan *Data, results chan<- *Data) {
+func worker(perm Perm, level int, wg *sync.WaitGroup) {
 
-	for perm := range jobs {
-
-		if perm.level >= *maxLevel {
-			return
-		}
-		for a := 1; a < perm.level+2; a++ {
-			newPerm := localExp(perm.perm, a)
-			if isPlane(newPerm) {
-				lock.Lock()
-				levelPermCount[perm.level]++
-				lock.Unlock()
-				newPermData := Data{perm: newPerm, level: perm.level + 1}
-				results <- &newPermData
-			}
+	if level >= *maxLevel {
+		wg.Done()
+		return
+	}
+	for a := 1; a < level+2; a++ {
+		newPerm := localExp(perm, a)
+		if isPlane(newPerm) {
+			lock.Lock()
+			levelPermCount[level]++
+			lock.Unlock()
+			wg.Add(1)
+			worker(newPerm, level+1, wg)
 		}
 	}
+
+	wg.Done()
 }
+
 
 func trackTime(s time.Time, msg string) {
 	fmt.Println(msg, ":", time.Since(s))
