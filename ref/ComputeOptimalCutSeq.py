@@ -26,7 +26,7 @@ def optimalCut(rects, x, y, reg, seq):
 	# rects : Rectangles in the current set
 	# x : sorted list of X coordinates
 	# y : sorted list of Y coordinates
-	# reg : current bounded region [REMOVED BECAUSE OF NO USE IN CODE]
+	# reg : current bounded region
 	# seq : sequence of cuts upto this set
 
 	# RETURN
