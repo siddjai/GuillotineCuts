@@ -65,13 +65,13 @@ def addWithTiling(k, newmat):
 		print()
 
 def construct(k, mat, ind):
-	for l in range(k-1)
+	for l in range(k-1):
 		for s in range(2*k - 1 - l):
 			newmat = copy.copy(mat)
 			newmat.append((ind, s, l))
 			if ind == k-1:
 				if not reducible(k, newmat):
-					# addWithTiling(k, newmat)
+					addWithTiling(k, newmat)
 					po.add(makeOrder(k, newmat))
 
 			else: construct(k, newmat, ind+1)
@@ -91,5 +91,5 @@ def countSets(k):
 
 # print(4, countSets(4))
 
-for k in range(4, 6):
+for k in range(4, 5):
 	print(k, countSets(k))
