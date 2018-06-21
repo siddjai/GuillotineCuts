@@ -65,45 +65,16 @@ def addWithTiling(k, newmat):
 		print()
 
 def construct(k, mat, ind):
-	for s in range(k):
-		newmat = copy.copy(mat)
-		newmat.append((ind, s, k-1))
-		if ind == k-1:
-			if not reducible(k, newmat):
-				# addWithTiling(k, newmat)
-				po.add(makeOrder(k, newmat))
+	for l in range(k-1)
+		for s in range(2*k - 1 - l):
+			newmat = copy.copy(mat)
+			newmat.append((ind, s, l))
+			if ind == k-1:
+				if not reducible(k, newmat):
+					# addWithTiling(k, newmat)
+					po.add(makeOrder(k, newmat))
 
-		else: construct(k, newmat, ind+1)
-
-	for s in range(2*k-2):
-		newmat = copy.copy(mat)
-		newmat.append((ind, s, 1))
-		if ind == k-1:
-			if not reducible(k, newmat):
-				# addWithTiling(k, newmat)
-				po.add(makeOrder(k, newmat))
-
-		else: construct(k, newmat, ind+1)
-
-	# for s in range(2*k-3):
-	# 	newmat = copy.copy(mat)
-	# 	newmat.append((ind, s, 2))
-	# 	if ind == k-1:
-	# 		if not reducible(k, newmat):
-	# 			# addWithTiling(k, newmat)
-	# 			po.add(makeOrder(k, newmat))
-
-	# 	else: construct(k, newmat, ind+1)
-
-	# for s in range(2*k-4):
-	# 	newmat = copy.copy(mat)
-	# 	newmat.append((ind, s, 3))
-	# 	if ind == k-1:
-	# 		if not reducible(k, newmat):
-	# 			# addWithTiling(k, newmat)
-	# 			po.add(makeOrder(k, newmat))
-
-	# 	else: construct(k, newmat, ind+1)
+			else: construct(k, newmat, ind+1)
 
 def countSets(k):
 	po.clear()
