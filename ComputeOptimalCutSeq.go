@@ -103,15 +103,22 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 		var rects1 [][4]int
 		var rects2 [][4]int
 		boundary := false
-		for _, rec := range rects {
 
-			if rec[0] < x[1+k] {
+		kill_cur := 0
+		for _, rec := range rects {
+			var xi [2]int
+			xi[0] = rec[0]
+			xi[1] = rec[1]
+			if intervalIntersect(xi, [2]int{x[1+k], x[1+k]}) {
+				kill_cur++
+			} else if rec[0] < x[1+k] {
 				rects1 = append(rects1, rec)
 			} else {
 				rects2 = append(rects2, rec)
 			}
 
 			if rec[1] == x[1+k] {boundary = true}
+
 		}
 
 		xx1 := x[:2+k]
@@ -141,17 +148,8 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 
 		seq1, kill1 := optimalCut(rects1, xx1, yy1, reg1, seq)
 		seq2, kill2 := optimalCut(rects2, xx2, yy2, reg2, seq)
-		kill3 := 0
-		for _, rec := range rects {
-			var xi [2]int
-			xi[0] = rec[0]
-			xi[1] = rec[1]
-			if intervalIntersect(xi, [2]int{x[1+k], x[1+k]}) {
-				kill3++
-			}
-		}	
 
-		cuts[k] = kill1 + kill2 + kill3
+		cuts[k] = kill1 + kill2 + kill_cur
 
 		seq = append(seq, seq1...)
 		seq = append(seq, seq2...)
@@ -163,9 +161,14 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 		var rects1 [][4]int
 		var rects2 [][4]int
 		boundary := false
+		kill_cur := 0
 		for _, rec := range rects {
-
-			if rec[2] < y[1+k] {
+			var yi [2]int 
+			yi[0] = rec[2]
+			yi[1] = rec[3]
+			if intervalIntersect(yi, [2]int{y[1+k], y[1+k]}) {
+				kill_cur++
+			} else if rec[2] < y[1+k] {
 				rects1 = append(rects1, rec)
 			} else {
 				rects2 = append(rects2, rec)
@@ -201,16 +204,8 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 
 		seq1, kill1 := optimalCut(rects1, xx1, yy1, reg1, seq)
 		seq2, kill2 := optimalCut(rects2, xx2, yy2, reg2, seq)
-		kill3 := 0
-		for _, rec := range rects {
-			var yi [2]int 
-			yi[0] = rec[2]
-			yi[1] = rec[3]
-			if intervalIntersect(yi, [2]int{y[1+k], y[1+k]}) {
-				kill3++
-			}
-		}
-		cuts[len(x) - 2 + k] = kill1 + kill2 + kill3
+	
+		cuts[len(x) - 2 + k] = kill1 + kill2 + kill_cur
 
 		seq = append(seq, seq1...)
 		seq = append(seq, seq2...)
