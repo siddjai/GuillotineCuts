@@ -1,3 +1,8 @@
+# DISCLAIMER
+# This code is neither correct nor efficient
+# Working on making the Go implementation reliable
+# This code is not a priority
+
 # Format for specifying a rectangle:
 # (x1, x2, y1, y2) where x1 is the min and x2 is the max y coordinate.
 # Similarly for y
