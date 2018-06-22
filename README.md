@@ -5,3 +5,10 @@ This repository contains all code written for my Bachelor's Thesis at IIIT-Delhi
 
 ### /ref
 This folder contains all the proof of concept code. This code will not be run directly for enumeration but it is simply for ironing out implementation details, and to help decide structure of more low level code.
+
+### Possible Edits
+
+- Use **uint8** in Generating Tree implementation, that could save memory if needed and speed up a bit.
+- Instead of the *reg*, use an encoding of labels in ComputeOptimalCutSeq. This would add overhead in function but reduce size of *seq* and could potentially lead to speedup.
+
+All points mentioned here need further analysis.
