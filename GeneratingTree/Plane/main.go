@@ -18,14 +18,14 @@ import (
 )
 
 var (
-	maxLevel = flag.Int("l", 9, "MAX Level")
+	maxLevel = flag.Int("l", 11, "MAX Level")
 	procs    = flag.Int("procs", 2, "Number of workers")
 	p        = flag.Bool("pprof", false, "Enable Profiling")
 	t        = flag.Bool("trace", false, "Enable Tracing")
 )
 
 // Level at which the Tree formation starts
-const  startingLevel  = 4
+const startingLevel  = 4
 type Perm []int
 
 func NewPerm(islice []int) Perm {
@@ -136,8 +136,6 @@ func isPlane(perm Perm) bool {
 		if perm[k] < perm[k+1]-1 {
 			m, M := perm[k], perm[k+1]
 			two := 1000
-			//two, three := 1000, 0
-			//_ = three // appease the compiler
 			prefix, suffix := perm[:k], perm[k+2:]
 
 			for _, k := range prefix {
@@ -148,7 +146,6 @@ func isPlane(perm Perm) bool {
 
 			for _, k := range suffix {
 				if k > two && k < M {
-					//three = k // I dont know why did the python code init three ????? its returning anyway TODO: check this
 					return false
 				}
 			}
@@ -159,12 +156,22 @@ func isPlane(perm Perm) bool {
 }
 
 func initCurLevel(s *Set) {
-	s.Add(NewPerm([]int{1, 2, 3}))
-	s.Add(NewPerm([]int{1, 3, 2}))
-	s.Add(NewPerm([]int{2, 1, 3}))
-	s.Add(NewPerm([]int{3, 1, 2}))
-	s.Add(NewPerm([]int{2, 3, 1}))
-	s.Add(NewPerm([]int{3, 2, 1}))
+	p := NewSet()
+	p.Add(NewPerm([]int{1, 2, 3}))
+	p.Add(NewPerm([]int{1, 3, 2}))
+	p.Add(NewPerm([]int{2, 1, 3}))
+	p.Add(NewPerm([]int{3, 1, 2}))
+	p.Add(NewPerm([]int{2, 3, 1}))
+	p.Add(NewPerm([]int{3, 2, 1}))
+
+	for _, perm := range p.Values() {
+		for a:=1; a<=4; a++ {
+			newPerm := localExp(perm, a)
+			if isPlane(newPerm) {
+				s.Add(newPerm)
+			}
+		}
+	}
 }
 
 var curLevel *Set
@@ -215,7 +222,7 @@ func worker(perm Perm, level int, wg *sync.WaitGroup) {
 	if level >= *maxLevel {
 		return
 	}
-	for a := 1; a < level+2; a++ {
+	for a := 1; a <= level+1; a++ {
 		newPerm := localExp(perm, a)
 		if isPlane(newPerm) {
 			lock.Lock()
