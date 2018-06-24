@@ -226,7 +226,7 @@ func worker(perm Perm, level int, wg *sync.WaitGroup) {
 		newPerm := localExp(perm, a)
 		if isPlane(newPerm) {
 			lock.Lock()
-			levelPermCount[level]++
+			levelPermCount[level+1]++
 			lock.Unlock()
 			worker(newPerm, level+1, wg)
 		}
