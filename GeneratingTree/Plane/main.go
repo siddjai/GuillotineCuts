@@ -24,8 +24,9 @@ var (
 	t        = flag.Bool("trace", false, "Enable Tracing")
 )
 
+// Level at which the Tree formation starts
+const  startingLevel  = 4
 type Perm []int
-
 
 func NewPerm(islice []int) Perm {
 	p := make(Perm, 0)
@@ -54,7 +55,6 @@ func (p Perm) String() string {
 
 var levelPermCount = make(map[int]int)
 var lock sync.Mutex
-
 
 // Try with this first, if shit hits the fan
 // Try with sync.Map.
@@ -109,7 +109,7 @@ func (s *Set) Values() []Perm {
 }
 
 func localExp(perm Perm, a int) Perm {
-	newPerm := make(Perm, 0)
+	newPerm := make(Perm, 0, len(perm)+1)
 
 	for _, k := range perm {
 		if k < a {
@@ -131,33 +131,30 @@ func min(a, b int) int {
 }
 
 func isPlane(perm Perm) bool {
-	steps := make(Perm,0)
 
 	for k := 0; k < len(perm)-1; k++ {
 		if perm[k] < perm[k+1]-1 {
-			steps = append(steps, k)
-		}
-	}
+			m, M := perm[k], perm[k+1]
+			two := 1000
+			//two, three := 1000, 0
+			//_ = three // appease the compiler
+			prefix, suffix := perm[:k], perm[k+2:]
 
-	for _, s := range steps {
-		m, M := perm[s], perm[s+1]
-		two, three := 1000, 0
-		_ = three // appease the compiler
-		prefix, suffix := perm[:s], perm[s+2:]
-
-		for _, k := range prefix {
-			if k > m && k < M-1 {
-				two = min(k, two)
+			for _, k := range prefix {
+				if k > m && k < M-1 {
+					two = min(k, two)
+				}
 			}
-		}
 
-		for _, k := range suffix {
-			if k > two && k < M {
-				three = k // I dont know why did the python code init three ????? its returning anyway TODO: check this
-				return false
+			for _, k := range suffix {
+				if k > two && k < M {
+					//three = k // I dont know why did the python code init three ????? its returning anyway TODO: check this
+					return false
+				}
 			}
 		}
 	}
+
 	return true
 }
 
@@ -205,7 +202,7 @@ func main() {
 	var wg sync.WaitGroup
 	for _, perm := range curLevel.Values() {
 		wg.Add(1)
-		go worker(perm, 4, &wg)
+		go worker(perm, startingLevel, &wg)
 	}
 
 	wg.Wait()
@@ -216,7 +213,6 @@ func main() {
 func worker(perm Perm, level int, wg *sync.WaitGroup) {
 
 	if level >= *maxLevel {
-		wg.Done()
 		return
 	}
 	for a := 1; a < level+2; a++ {
@@ -225,14 +221,15 @@ func worker(perm Perm, level int, wg *sync.WaitGroup) {
 			lock.Lock()
 			levelPermCount[level]++
 			lock.Unlock()
-			wg.Add(1)
 			worker(newPerm, level+1, wg)
 		}
 	}
 
-	wg.Done()
-}
+	if level == startingLevel {
+		wg.Done()
+	}
 
+}
 
 func trackTime(s time.Time, msg string) {
 	fmt.Println(msg, ":", time.Since(s))
