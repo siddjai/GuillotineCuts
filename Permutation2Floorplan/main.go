@@ -1,3 +1,6 @@
+// Infinite loop on input: 2 5 3 1 4
+// Input is the typical "trap" where you must kill 1 rectangle
+
 // Given a Baxter permutation, this program constructs a corresponding floorplan
 // Based on the mapping mentioned on page 15 in this thesis:
 // https://www.cs.technion.ac.il/users/wwwb/cgi-bin/tr-get.cgi/2006/PHD/PHD-2006-11.pdf
