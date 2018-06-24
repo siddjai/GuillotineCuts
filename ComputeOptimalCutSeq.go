@@ -12,7 +12,6 @@
 package main
 
 import (
-//	"bufio"
 	"fmt"
 	"sort"
 )
@@ -49,9 +48,6 @@ import (
 var dp_seq map[[4]int][][6]int
 var dp_kill map[[4]int]int
 
-// var reader *bufio.Reader = bufio.NewReader(os.Stdin)
-// func scanf(f string, a ...interface{}) { fmt.Fscanf(reader, f, a...) }
-
 func intervalIntersect(i1 [2]int, i2 [2]int) (bool){
 	x1 := i1[0]
 	x2 := i1[1]
@@ -84,6 +80,7 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 		return seq, 0
 	}
 
+	// Check if stored
 	killed, ok := dp_kill[reg]
 	if ok {
 		sseq := dp_seq[reg]
@@ -95,10 +92,11 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 	seqs := make(map[int][][6]int)
 
 	for i:=0; i<m; i++ {
-		//Arbritary constant
-		cuts[i] = 1000
+		//A high enough constant
+		cuts[i] = 255
 	}
 
+	//Enough to try all rectangle edges
 	for k:=0; k<len(x)-2; k++ {
 		var rects1 [][4]int
 		var rects2 [][4]int
@@ -111,13 +109,13 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 			xi[1] = rec[1]
 			if intervalIntersect(xi, [2]int{x[1+k], x[1+k]}) {
 				kill_cur++
-			} else if rec[0] < x[1+k] {
+			} else if rec[1] <= x[1+k] {
 				rects1 = append(rects1, rec)
 			} else {
 				rects2 = append(rects2, rec)
 			}
 
-			if rec[1] == x[1+k] {boundary = true}
+			if rec[0] == x[1+k] {boundary = true}
 
 		}
 
@@ -131,7 +129,8 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 			yy1 = append(yy1, rec[3])
 		}
 
-		reg1 := reg 
+		var reg1 [4]int
+		reg1 = reg 
 		reg1[1] = x[1+k]
 
 		var yy2 []int
@@ -140,8 +139,9 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 			yy2 = append(yy2, rec[3])
 		}
 
-		reg2 := reg 
-		reg2[0] = x[1+k]
+		var reg2 [4]int
+		reg2 = reg
+		reg2[0] = xx2[0]
 
 		sort.Slice(yy1, func(i, j int) bool { return i<j })
 		sort.Slice(yy2, func(i, j int) bool { return i<j })
@@ -168,17 +168,17 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 			yi[1] = rec[3]
 			if intervalIntersect(yi, [2]int{y[1+k], y[1+k]}) {
 				kill_cur++
-			} else if rec[2] < y[1+k] {
+			} else if rec[3] <= y[1+k] {
 				rects1 = append(rects1, rec)
 			} else {
 				rects2 = append(rects2, rec)
 			}
 
-			if rec[3] == y[1+k] {boundary = true}
+			if rec[2] == y[1+k] {boundary = true}
 		}
 
-		yy1 := x[:2+k]
-		yy2 := x[2+k:]
+		yy1 := y[:2+k]
+		yy2 := y[2+k:]
 		if boundary { yy2 = append([]int{y[1+k]}, yy2...) }
 
 		var xx1 []int
@@ -187,7 +187,8 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 			xx1 = append(xx1, rec[1])
 		}
 
-		reg1 := reg 
+		var reg1 [4]int
+		reg1 = reg 
 		reg1[3] = y[1+k]
 
 		var xx2 []int 
@@ -196,8 +197,9 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 			xx2 = append(xx2, rec[1])
 		}
 
-		reg2 := reg 
-		reg2[2] = y[1+k]
+		var reg2 [4]int
+		reg2 = reg
+		reg2[2] = yy2[0]
 
 		sort.Slice(xx1, func(i, j int) bool { return i<j })
 		sort.Slice(xx2, func(i, j int) bool { return i<j })
@@ -212,6 +214,7 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 		seqs[len(x) - 2 + k] = seq
 	}
 
+	//Choose min
 	minPtr := 0
 	for k:=0; k<m; k++ {
 		if cuts[k] < cuts[minPtr] {minPtr = k}
@@ -221,7 +224,7 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 	if minPtr < len(x) - 2 {
 		newLine = [2]int{x[1+minPtr], 0}
 	} else {
-		newLine = [2]int{y[minPtr - len(x)], 1}
+		newLine = [2]int{y[minPtr - len(x) + 2], 1}
 	}
 
 	dp_kill[reg] = cuts[minPtr]

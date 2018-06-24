@@ -16,10 +16,14 @@ def localExp(perm, a):
 
 def isPlane(perm):
 	n = len(perm)
+
+	# Memorise -14-
 	steps = []
 	for k in range(n-1):
 		if perm[k] < perm[k+1] - 1: steps.append(k)
 
+
+	# Avoid 2-14-3
 	for s in steps:
 		m, M = perm[s], perm[s+1]
 		two, three = 1000, 0
@@ -38,13 +42,13 @@ def isPlane(perm):
 
 curLevel = set([(1,2,3), (1,3,2), (2,1,3), (3,1,2), (2,3,1), (3,2,1)])
 level = 3
-while level != 20:
+while level != 5:
 	newLevel = set()
 	for perm in curLevel:
 		for a in range(1,level+2):
 			newPerm = localExp(perm, a)
 			if isPlane(newPerm): newLevel.add(newPerm)
 
-	print(len(newLevel))
+	print((newLevel))
 	curLevel = newLevel
 	level += 1
