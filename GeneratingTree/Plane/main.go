@@ -109,7 +109,7 @@ func (s *Set) Values() []Perm {
 }
 
 func localExp(perm Perm, a int) Perm {
-	newPerm := make(Perm, 0)
+	newPerm := make(Perm, 0, len(perm) + 1)
 
 	for _, k := range perm {
 		if k < a {
@@ -131,7 +131,7 @@ func min(a, b int) int {
 }
 
 func isPlane(perm Perm) bool {
-	steps := make(Perm,0)
+	steps := make(Perm,0 ,len(perm))
 
 	for k := 0; k < len(perm)-1; k++ {
 		if perm[k] < perm[k+1]-1 {
