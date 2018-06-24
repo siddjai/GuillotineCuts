@@ -24,6 +24,8 @@ var (
 	t        = flag.Bool("trace", false, "Enable Tracing")
 )
 
+// Level at which the Tree formation starts
+const  startingLevel  = 4
 type Perm []int
 
 func NewPerm(islice []int) Perm {
@@ -200,7 +202,7 @@ func main() {
 	var wg sync.WaitGroup
 	for _, perm := range curLevel.Values() {
 		wg.Add(1)
-		go worker(perm, 4, &wg)
+		go worker(perm, startingLevel, &wg)
 	}
 
 	wg.Wait()
@@ -211,7 +213,6 @@ func main() {
 func worker(perm Perm, level int, wg *sync.WaitGroup) {
 
 	if level >= *maxLevel {
-		wg.Done()
 		return
 	}
 	for a := 1; a < level+2; a++ {
@@ -220,12 +221,14 @@ func worker(perm Perm, level int, wg *sync.WaitGroup) {
 			lock.Lock()
 			levelPermCount[level]++
 			lock.Unlock()
-			wg.Add(1)
 			worker(newPerm, level+1, wg)
 		}
 	}
 
-	wg.Done()
+	if level == startingLevel {
+		wg.Done()
+	}
+
 }
 
 func trackTime(s time.Time, msg string) {
