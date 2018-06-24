@@ -1,3 +1,6 @@
+// Infinite loop on input: 2 5 3 1 4
+// Input is the typical "trap" where you must kill 1 rectangle
+
 // Format for specifying a rectangle:
 // (x1, x2, y1, y2) where x1 is the min and x2 is the max y coordinate.
 // Similarly for y

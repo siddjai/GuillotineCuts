@@ -3,8 +3,15 @@ This repository contains all code written for my Bachelor's Thesis at IIIT-Delhi
 
 ## Guide 
 
-### /ref
-This folder contains all the proof of concept code. This code will not be run directly for enumeration but it is simply for ironing out implementation details, and to help decide structure of more low level code.
+### 3 Phases 
+
+- **Generating Tree** : In this phase we enumerate a set of permutations using 
+- **Permutation 2 Floorplan** : We interpret the permutation as a mosaic floorplan.
+- **Compute Optimal-Cut-Seq**: Finally, we compute the optimal Guillotine cut sequence on the set of rectangles.
+
+### Run & Reference
+
+Each folder contains a *.go* code which was/will be actually used for enumeration and a *.py* code which was written as proof of concept to iron out implementation details.
 
 ### Possible Edits
 
