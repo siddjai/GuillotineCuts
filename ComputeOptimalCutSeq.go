@@ -123,31 +123,54 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 		xx2 := x[2+k:]
 		if boundary { xx2 = append([]int{x[1+k]}, xx2...) }
 
-		var yy1 []int
+		yy1m := make(map[int]bool)
 		for _, rec := range rects1 {
-			yy1 = append(yy1, rec[2])
-			yy1 = append(yy1, rec[3])
+			yy1m[rec[2]] = true
+			yy1m[rec[3]] = true
 		}
 
 		var reg1 [4]int
 		reg1 = reg 
 		reg1[1] = x[1+k]
 
-		var yy2 []int
+		yy2m := make(map[int]bool)
 		for _, rec := range rects2 {
-			yy2 = append(yy2, rec[2])
-			yy2 = append(yy2, rec[3])
+			yy2m[rec[2]] = true
+			yy2m[rec[3]] = true
 		}
 
 		var reg2 [4]int
 		reg2 = reg
 		reg2[0] = xx2[0]
 
-		sort.Slice(yy1, func(i, j int) bool { return i<j })
-		sort.Slice(yy2, func(i, j int) bool { return i<j })
+		yy1 := make([]int, len(yy1m))
+		yy2 := make([]int, len(yy2m))
 
-		seq1, kill1 := optimalCut(rects1, xx1, yy1, reg1, seq)
-		seq2, kill2 := optimalCut(rects2, xx2, yy2, reg2, seq)
+		i := 0
+		for k := range yy1m {
+		    yy1[i] = k
+		    i++
+		}
+
+		i = 0
+		for k := range yy2m {
+		    yy2[i] = k
+		    i++
+		}
+
+		sort.Ints(yy1)
+		sort.Ints(yy2)
+
+		//Jugaad | Should no longer be needed
+		kill1 := 255
+		kill2 := 255
+		var seq1 [][6]int
+		var seq2 [][6]int
+
+		if len(rects1) < len(rects) && len(rects2) < len(rects) {
+			seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq)
+			seq2, kill2 = optimalCut(rects2, xx2, yy2, reg2, seq)
+		}
 
 		cuts[k] = kill1 + kill2 + kill_cur
 
@@ -181,32 +204,55 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 		yy2 := y[2+k:]
 		if boundary { yy2 = append([]int{y[1+k]}, yy2...) }
 
-		var xx1 []int
+		xx1m := make(map[int]bool)
 		for _, rec := range rects1 {
-			xx1 = append(xx1, rec[0])
-			xx1 = append(xx1, rec[1])
+			xx1m[rec[0]] = true
+			xx1m[rec[1]] = true 
 		}
 
 		var reg1 [4]int
 		reg1 = reg 
 		reg1[3] = y[1+k]
 
-		var xx2 []int 
+		xx2m := make(map[int]bool) 
 		for _, rec := range rects2 {
-			xx2 = append(xx2, rec[0])
-			xx2 = append(xx2, rec[1])
+			xx2m[rec[0]] = true
+			xx2m[rec[1]] = true
 		}
 
 		var reg2 [4]int
 		reg2 = reg
 		reg2[2] = yy2[0]
 
-		sort.Slice(xx1, func(i, j int) bool { return i<j })
-		sort.Slice(xx2, func(i, j int) bool { return i<j })
+		xx1 := make([]int, len(xx1m))
+		xx2 := make([]int, len(xx2m))
 
-		seq1, kill1 := optimalCut(rects1, xx1, yy1, reg1, seq)
-		seq2, kill2 := optimalCut(rects2, xx2, yy2, reg2, seq)
-	
+		i := 0
+		for k := range xx1m {
+		    xx1[i] = k
+		    i++
+		}
+
+		i = 0
+		for k := range xx2m {
+		    xx2[i] = k
+		    i++
+		}
+
+		sort.Ints(xx1)
+		sort.Ints(xx2)
+
+		//Jugaad | should no longer be needed
+		kill1 := 255
+		kill2 := 255
+		var seq1 [][6]int
+		var seq2 [][6]int
+
+		if len(rects1) < len(rects) && len(rects2) < len(rects) {
+			seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq)
+			seq2, kill2 = optimalCut(rects2, xx2, yy2, reg2, seq)
+		}
+
 		cuts[len(x) - 2 + k] = kill1 + kill2 + kill_cur
 
 		seq = append(seq, seq1...)
@@ -269,18 +315,34 @@ func main() {
 	dp_kill = make(map[[4]int]int)
 
 	if sanityCheck(rects) {
-		var x []int
-		var y []int
+		xm := make(map[int]bool)
+		ym := make(map[int]bool)
 		for _, tup := range rects {
-			x = append(x, tup[0])
-			x = append(x, tup[1])
-			y = append(y, tup[2])
-			y = append(y, tup[3])
+			xm[tup[0]] = true 
+			xm[tup[1]] = true
+			ym[tup[2]] = true 
+			ym[tup[3]] = true 
 		}
 
-		sort.Slice(x, func(i, j int) bool { return i<j })
-		sort.Slice(y, func(i, j int) bool { return i<j })
-		reg := [4]int{x[0], x[len(x)-1], y[0], y[len(x)-1]}
+		x := make([]int, len(xm))
+		y := make([]int, len(ym))
+
+		i := 0
+		for k := range xm {
+		    x[i] = k
+		    i++
+		}
+
+		i = 0
+		for k := range ym {
+		    y[i] = k
+		    i++
+		}		
+
+		sort.Ints(x)
+		sort.Ints(y)
+		fmt.Println(x)
+		reg := [4]int{x[0], x[len(x)-1], y[0], y[len(y)-1]}
 		var seq [][6]int
 
 		fin_seq, killed := optimalCut(rects, x, y, reg, seq)
