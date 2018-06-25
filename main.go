@@ -29,114 +29,32 @@ import (
 )
 
 var (
-	maxLevel = flag.Int("l", 8, "MAX Level")
+	maxLevel = flag.Int("l", 6, "MAX Level")
 	procs    = flag.Int("procs", 2, "Number of workers")
 	p        = flag.Bool("pprof", false, "Enable Profiling")
 	t        = flag.Bool("trace", false, "Enable Tracing")
 )
 
-// Given a Baxter permutation, the function BP2FP constructs a corresponding floorplan
-// Based on the mapping mentioned on page 15 in this thesis:
-// https://www.cs.technion.ac.il/users/wwwb/cgi-bin/tr-get.cgi/2006/PHD/PHD-2006-11.pdf
-// And the related paper
-// Eyal Ackerman, Gill Barequet, and Ron Y. Pinter.  A bijection
-// between permutations and floorplans, and its applications.
-// Discrete Applied Mathematics, 154(12):1674–1684, 2006.
-
-func BP2FP(perm []int, n int) [][4]int {
-	
-	rects := make([][4]int, n+1)
-	rects[perm[0]] = [4]int{0, n, 0, n}
-	below := make(map[int]int)
-	left := make(map[int]int)
-	prevlabel := perm[0]
-
-	for k := 1; k < n; k++ {
-		p := perm[k]
-		if p < prevlabel {
-			oldrect := rects[prevlabel]
-			// middle := (oldrect[2] + oldrect[3]) / 2
-
-			// Horizontal slice
-			rects[p] = oldrect
-			rects[p][2] = k
-			rects[prevlabel][3] = k
-
-			// Store spatial relations
-			below[p] = prevlabel
-			lp, past := left[prevlabel]
-			if past {
-				left[p] = lp
-			}
-
-			_, ok := left[p]
-			for ok && left[p] > p {
-				l := left[p]
-
-				rects[p][0] = rects[l][0]
-
-				rects[l][3] = rects[p][2]
-
-				ll, okl := left[l]
-				if okl {
-					left[p] = ll
-				} else {
-					delete(left, p)
-				}
-
-				_, ok = left[p]
-			}
-
-			prevlabel = p
-
-		} else {
-			oldrect := rects[prevlabel]
-			// middle := (oldrect[0] + oldrect[1]) / 2
-
-			// Vertical slice
-			rects[p] = oldrect
-			rects[p][0] = k
-			rects[prevlabel][1] = k
-
-			// Store spatial relations
-			left[p] = prevlabel
-			bp, past := below[prevlabel]
-			if past {
-				below[p] = bp
-			}
-
-			_, ok := below[p]
-			for ok && below[p] < p {
-				b := below[p]
-
-				rects[p][2] = rects[b][2]
-
-				rects[b][1] = rects[p][0]
-
-				bb, okb := below[b]
-				if okb {
-					below[p] = bb
-				} else {
-					delete(below, b)
-				}
-
-				_, ok = below[p]
-			}
-
-			prevlabel = p
-
-		}
-		//draw(rects, n)
-	}
-
-	return rects[1:]
-}
-// End of BP2FP
-
 // Compute Optimal Cut Seq
 
 var dp_seq map[[4]int][][6]int
 var dp_kill map[[4]int]int
+
+func intervalIntersect(i1 [2]int, i2 [2]int) (bool){
+	x1 := i1[0]
+	x2 := i1[1]
+	if (x1 > i2[0] && x1 < i2[1]) || (x2 > i2[0] && x2 < i2[1]){
+		return true
+	}
+
+	x1 = i2[0]
+	x2 = i2[1]
+	if (x1 > i1[0] && x1 < i1[1]) || (x2 > i1[0] && x2 < i1[1]){
+		return true
+	}
+
+	return false
+}
 
 func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][6]int, int){
 	// rects : Rectangles in the current set
@@ -412,6 +330,7 @@ func ComputeOCS(rects [][4]int) ([][6]int, int) {
 
 	} else {
 		fmt.Println("Invalid set!")
+		return nil, 0
 	}
 }
 
@@ -502,6 +421,104 @@ func (s *Set) Values() []Perm {
 	}
 	return vals
 }
+
+// Given a Baxter permutation, the function BP2FP constructs a corresponding floorplan
+// Based on the mapping mentioned on page 15 in this thesis:
+// https://www.cs.technion.ac.il/users/wwwb/cgi-bin/tr-get.cgi/2006/PHD/PHD-2006-11.pdf
+// And the related paper
+// Eyal Ackerman, Gill Barequet, and Ron Y. Pinter.  A bijection
+// between permutations and floorplans, and its applications.
+// Discrete Applied Mathematics, 154(12):1674–1684, 2006.
+
+func BP2FP(perm Perm, n int) [][4]int {
+	
+	rects := make([][4]int, n+1)
+	rects[perm[0]] = [4]int{0, n, 0, n}
+	below := make(map[int]int)
+	left := make(map[int]int)
+	prevlabel := perm[0]
+
+	for k := 1; k < n; k++ {
+		p := perm[k]
+		if p < prevlabel {
+			oldrect := rects[prevlabel]
+			// middle := (oldrect[2] + oldrect[3]) / 2
+
+			// Horizontal slice
+			rects[p] = oldrect
+			rects[p][2] = k
+			rects[prevlabel][3] = k
+
+			// Store spatial relations
+			below[p] = prevlabel
+			lp, past := left[prevlabel]
+			if past {
+				left[p] = lp
+			}
+
+			_, ok := left[p]
+			for ok && left[p] > p {
+				l := left[p]
+
+				rects[p][0] = rects[l][0]
+
+				rects[l][3] = rects[p][2]
+
+				ll, okl := left[l]
+				if okl {
+					left[p] = ll
+				} else {
+					delete(left, p)
+				}
+
+				_, ok = left[p]
+			}
+
+			prevlabel = p
+
+		} else {
+			oldrect := rects[prevlabel]
+			// middle := (oldrect[0] + oldrect[1]) / 2
+
+			// Vertical slice
+			rects[p] = oldrect
+			rects[p][0] = k
+			rects[prevlabel][1] = k
+
+			// Store spatial relations
+			left[p] = prevlabel
+			bp, past := below[prevlabel]
+			if past {
+				below[p] = bp
+			}
+
+			_, ok := below[p]
+			for ok && below[p] < p {
+				b := below[p]
+
+				rects[p][2] = rects[b][2]
+
+				rects[b][1] = rects[p][0]
+
+				bb, okb := below[b]
+				if okb {
+					below[p] = bb
+				} else {
+					delete(below, b)
+				}
+
+				_, ok = below[p]
+			}
+
+			prevlabel = p
+
+		}
+		//draw(rects, n)
+	}
+
+	return rects[1:]
+}
+// End of BP2FP
 
 func localExp(perm Perm, a int) Perm {
 	newPerm := make(Perm, 0, len(perm)+1)
@@ -649,14 +666,17 @@ func worker(perm Perm, level int, wg *sync.WaitGroup) {
 	for a := 1; a <= level+1; a++ {
 		newPerm := localExp(perm, a)
 		if isBaxter(newPerm) {
+			n := level+1
+			rects := BP2FP(newPerm, n)
+			seq, kill := ComputeOCS(rects)
+			
 			lock.Lock()
 			levelPermCount[level+1]++
-			n := level+1
-			rects = BP2FP(newPerm, n)
-			seq, kill := ComputeOCS(rects)
 			if kill >= n/4 {
 				// Save to file instead
-				fmt.Println("Ping!")
+				fmt.Println(seq)
+				fmt.Println(kill)
+				fmt.Println()
 			}
 			lock.Unlock()
 			worker(newPerm, level+1, wg)

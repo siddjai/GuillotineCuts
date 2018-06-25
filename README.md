@@ -5,7 +5,7 @@ This repository contains all code written for my Bachelor's Thesis at IIIT-Delhi
 
 ### 3 Phases 
 
-- **Generating Tree** : In this phase we enumerate a set of permutations using 
+- **Generating Tree** : In this phase we enumerate a set of permutations using a Generating Tree, explained in linked paper.
 - **Permutation 2 Floorplan** : We interpret the permutation as a mosaic floorplan.
 - **Compute Optimal-Cut-Seq**: Finally, we compute the optimal Guillotine cut sequence on the set of rectangles.
 
