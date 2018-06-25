@@ -11,13 +11,12 @@
 # Similarly for y
 
 def draw(rects, n):
-	rects = list(rects)
 	mat = [[0 for i in range(n)] for j in range(n)]
-	for k in range(len(rects)):
+	for k in rects:
 		rec = rects[k]
 		for i in range(rec[0], rec[1]):
 			for j in range(rec[2], rec[3]):
-				mat[n - 1 - j][n - 1 - i] = k+1
+				mat[n - 1 - j][i] = k
 
 	for k in range(n):
 		print("".join(str(i) for i in mat[k]))
@@ -36,16 +35,18 @@ prevlabel = perm[0]
 for k in range(1, n):
 	if perm[k] < prevlabel:
 		oldrect = rects[prevlabel]
-		middle = (oldrect[2]+oldrect[3])//2
+		# middle = (oldrect[2]+oldrect[3])//2
 
+		# Divide top right rect by horizontal segment
 		rk = list(oldrect)
-		rk[2] = middle
+		rk[2] = k
 		rects[perm[k]] = tuple(rk)
 
 		rpl = list(oldrect)
-		rpl[3] = middle
+		rpl[3] = k
 		rects[prevlabel] = tuple(rpl)
 
+		# Store spatial relations
 		below[perm[k]] = prevlabel
 		if prevlabel in left: left[perm[k]] = left[prevlabel]
 
@@ -68,16 +69,18 @@ for k in range(1, n):
 
 	else:
 		oldrect = rects[prevlabel]
-		middle = (oldrect[0]+oldrect[1])//2
+		# middle = (oldrect[0]+oldrect[1])//2
 
+		# Divide top right rect by vertical segment
 		rk = list(oldrect)
-		rk[0] = middle
+		rk[0] = k
 		rects[perm[k]] = tuple(rk)
 
 		rpl = list(rects[prevlabel])
-		rpl[1] = middle
+		rpl[1] = k
 		rects[prevlabel] = tuple(rpl)
 
+		# Store spatial relations
 		left[perm[k]] = prevlabel
 		if prevlabel in below: below[perm[k]] = below[prevlabel] 
 		
@@ -98,10 +101,7 @@ for k in range(1, n):
 
 		prevlabel = perm[k]
 
-	curRects = set(rects.values())
-	draw(curRects, n)
+	draw(rects, n)
 	print()
 
-rects = set(rects.values())
 print(rects)
-draw(rects, n)
