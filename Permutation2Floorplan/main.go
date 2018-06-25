@@ -77,7 +77,7 @@ func main() {
 			left[p] = prevlabel
 
 			_, ok := below[p]
-			for ok && below[p] < p {
+			for ok && below[p] > p {
 				b := below[p]
 
 				rects[p][2] = rects[b][2]

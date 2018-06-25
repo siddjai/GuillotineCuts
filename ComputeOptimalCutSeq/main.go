@@ -301,15 +301,15 @@ func sanityCheck(rects [][4]int) (bool){
 }
 
 func main() {
-	// var n int
-	// fmt.Scanf("%d\n", &n)
-	// var rects [][4]int
-	// for i:=0; i<n; i++ {
-	// 	var x1, x2, y1, y2 int
-	// 	fmt.Scanf("%d %d %d %d\n", &x1, &x2, &y1, &y2)
-	// 	rects = append(rects, [4]int{x1, x2, y1, y2})
-	// }
-	var rects = [][4]int{{3, 4, 2, 4}, {2, 4, 0, 2}, {2, 3, 2, 4}, {0, 2, 0, 4}}
+	var n int
+	fmt.Scanf("%d\n", &n)
+	var rects [][4]int
+	for i:=0; i<n; i++ {
+		var x1, x2, y1, y2 int
+		fmt.Scanf("%d %d %d %d\n", &x1, &x2, &y1, &y2)
+		rects = append(rects, [4]int{x1, x2, y1, y2})
+	}
+	//var rects = [][4]int{{3, 4, 2, 4}, {2, 4, 0, 2}, {2, 3, 2, 4}, {0, 2, 0, 4}}
 
 	dp_seq = make(map[[4]int][][6]int)
 	dp_kill = make(map[[4]int]int)
@@ -341,7 +341,6 @@ func main() {
 
 		sort.Ints(x)
 		sort.Ints(y)
-		fmt.Println(x)
 		reg := [4]int{x[0], x[len(x)-1], y[0], y[len(y)-1]}
 		var seq [][6]int
 

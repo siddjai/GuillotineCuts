@@ -10,6 +10,20 @@
 # (x1, x2, y1, y2) where x1 is the min and x2 is the max y coordinate.
 # Similarly for y
 
+def draw(rects, n):
+	rects = list(rects)
+	mat = [[0 for i in range(n)] for j in range(n)]
+	for k in range(len(rects)):
+		rec = rects[k]
+		for i in range(rec[0], rec[1]):
+			for j in range(rec[2], rec[3]):
+				mat[n - 1 - j][n - 1 - i] = k+1
+
+	for k in range(n):
+		print("".join(str(i) for i in mat[k]))
+
+
+
 perm = [int(k) for k in input().split()]
 perm = tuple(perm)
 n = len(perm)
@@ -23,32 +37,49 @@ for k in range(1, n):
 	if perm[k] < prevlabel:
 		oldrect = rects[prevlabel]
 		middle = (oldrect[2]+oldrect[3])//2
-		rects[perm[k]] = (oldrect[0], oldrect[1], middle, oldrect[3])
-		rects[prevlabel] = (oldrect[0], oldrect[1], oldrect[2], middle)
-		below[perm[k]] = prevlabel
 
-		while perm[k] in left and left[perm[k]] < perm[k]:
+		rk = list(oldrect)
+		rk[2] = middle
+		rects[perm[k]] = tuple(rk)
+
+		rpl = list(oldrect)
+		rpl[3] = middle
+		rects[prevlabel] = tuple(rpl)
+
+		below[perm[k]] = prevlabel
+		if prevlabel in left: left[perm[k]] = left[prevlabel]
+
+		while perm[k] in left and left[perm[k]] > perm[k]:
 			l = left[perm[k]]
 			leftrect = rects[l]
 
 			rp = list(rects[perm[k]])
 			rp[0] = leftrect[0]
 			rects[perm[k]] = tuple(rp)
-			# rects[perm[k]] = (leftrect[0], rects[perm[k]][1], rects[perm[k]][2], rects[perm[k]][3])
+
 			rl = list(rects[l])
 			rl[3] = rp[2]
 			rects[l] = tuple(rl)
-			# rects[l] = (leftrect[0], leftrect[1], leftrect[2], rects[perm[k]][2])
+
 			if l in left.keys(): left[perm[k]] = left[l]
 			else: del left[perm[k]]
 
 		prevlabel = perm[k]
+
 	else:
 		oldrect = rects[prevlabel]
 		middle = (oldrect[0]+oldrect[1])//2
-		rects[perm[k]] = (middle, oldrect[1], oldrect[2], oldrect[3])
-		rects[prevlabel] = (oldrect[0], middle, oldrect[2], oldrect[3])
+
+		rk = list(oldrect)
+		rk[0] = middle
+		rects[perm[k]] = tuple(rk)
+
+		rpl = list(rects[prevlabel])
+		rpl[1] = middle
+		rects[prevlabel] = tuple(rpl)
+
 		left[perm[k]] = prevlabel
+		if prevlabel in below: below[perm[k]] = below[prevlabel] 
 		
 		while perm[k] in below and below[perm[k]] < perm[k]:
 			b = below[perm[k]]
@@ -67,5 +98,10 @@ for k in range(1, n):
 
 		prevlabel = perm[k]
 
+	curRects = set(rects.values())
+	draw(curRects, n)
+	print()
+
 rects = set(rects.values())
 print(rects)
+draw(rects, n)
