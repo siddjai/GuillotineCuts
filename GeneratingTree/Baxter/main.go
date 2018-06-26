@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	maxLevel = flag.Int("l", 11, "MAX Level")
+	maxLevel = flag.Int("l", 13, "MAX Level")
 	procs    = flag.Int("procs", 2, "Number of workers")
 	p        = flag.Bool("pprof", false, "Enable Profiling")
 	t        = flag.Bool("trace", false, "Enable Tracing")

@@ -131,7 +131,7 @@ func main() {
 			prevlabel = p
 
 		}
-		//draw(rects, n)
+		draw(rects, n)
 	}
 
 	fmt.Println(rects[1:])

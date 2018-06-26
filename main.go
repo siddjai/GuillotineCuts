@@ -669,7 +669,7 @@ func worker(perm Perm, level int, wg *sync.WaitGroup) {
 			n := level+1
 			rects := BP2FP(newPerm, n)
 			seq, kill := ComputeOCS(rects)
-			
+
 			lock.Lock()
 			levelPermCount[level+1]++
 			if kill >= n/4 {
