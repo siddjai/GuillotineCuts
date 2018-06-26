@@ -37,8 +37,8 @@ var (
 
 // Compute Optimal Cut Seq
 
-var dp_seq map[[4]int][][6]int
-var dp_kill map[[4]int]int
+// var dp_seq map[[4]int][][6]int
+// var dp_kill map[[4]int]int
 
 func intervalIntersect(i1 [2]int, i2 [2]int) (bool){
 	x1 := i1[0]
@@ -56,7 +56,7 @@ func intervalIntersect(i1 [2]int, i2 [2]int) (bool){
 	return false
 }
 
-func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][6]int, int){
+func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int, dp_kill map[[4]int]int, dp_seq map[[4]int][][6]int) ([][6]int, int){
 	// rects : Rectangles in the current set
 	// x : sorted list of X coordinates
 	// y : sorted list of Y coordinates
@@ -160,8 +160,8 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 		var seq2 [][6]int
 
 		if len(rects1) < len(rects) && len(rects2) < len(rects) {
-			seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq)
-			seq2, kill2 = optimalCut(rects2, xx2, yy2, reg2, seq)
+			seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq, dp_kill, dp_seq)
+			seq2, kill2 = optimalCut(rects2, xx2, yy2, reg2, seq, dp_kill, dp_seq)
 		}
 
 		cuts[k] = kill1 + kill2 + kill_cur
@@ -241,8 +241,8 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 		var seq2 [][6]int
 
 		if len(rects1) < len(rects) && len(rects2) < len(rects) {
-			seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq)
-			seq2, kill2 = optimalCut(rects2, xx2, yy2, reg2, seq)
+			seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq, dp_kill, dp_seq)
+			seq2, kill2 = optimalCut(rects2, xx2, yy2, reg2, seq, dp_kill, dp_seq)
 		}
 
 		cuts[len(x) - 2 + k] = kill1 + kill2 + kill_cur
@@ -293,8 +293,8 @@ func sanityCheck(rects [][4]int) (bool){
 }
 
 func ComputeOCS(rects [][4]int) ([][6]int, int) {
-	dp_seq = make(map[[4]int][][6]int)
-	dp_kill = make(map[[4]int]int)
+	dp_seq := make(map[[4]int][][6]int)
+	dp_kill := make(map[[4]int]int)
 
 	if sanityCheck(rects) {
 		xm := make(map[int]bool)
@@ -326,7 +326,7 @@ func ComputeOCS(rects [][4]int) ([][6]int, int) {
 		reg := [4]int{x[0], x[len(x)-1], y[0], y[len(y)-1]}
 		var seq [][6]int
 
-		return optimalCut(rects, x, y, reg, seq)
+		return optimalCut(rects, x, y, reg, seq, dp_kill, dp_seq)
 
 	} else {
 		fmt.Println("Invalid set!")
@@ -671,9 +671,10 @@ func worker(perm Perm, level int, wg *sync.WaitGroup) {
 			seq, kill := ComputeOCS(rects)
 
 			lock.Lock()
-			levelPermCount[level+1]++
+			levelPermCount[n]++
 			if kill >= n/4 {
 				// Save to file instead
+				fmt.Println(n)
 				fmt.Println(seq)
 				fmt.Println(kill)
 				fmt.Println()
