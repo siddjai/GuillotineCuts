@@ -29,7 +29,7 @@ import (
 )
 
 var (
-	maxLevel = flag.Int("l", 7, "MAX Level")
+	maxLevel = flag.Int("l", 6, "MAX Level")
 	procs    = flag.Int("procs", 2, "Number of workers")
 	p        = flag.Bool("pprof", false, "Enable Profiling")
 	t        = flag.Bool("trace", false, "Enable Tracing")
@@ -604,6 +604,40 @@ func isBaxter(perm Perm) bool {
 	return true
 }
 
+func addRange(stack *[][2]int, r [2]int) (){
+	s := *stack
+	n := len(s)
+	if n==0 {
+		*stack = append(s, r)
+		return
+	}
+	
+	top := s[n-1]
+	if r[0]>top[1]+1 || top[0]>r[1]+1 {
+		*stack = append(s, r)
+		return
+	} else {
+		*stack = s[:n-1]
+		r_new := [2]int{min(r[0], top[0]), max(r[1], top[1])}
+		addRange(stack, r_new)
+	}
+}
+
+func isSeperable(perm Perm) bool {
+    var stack [][2]int
+    for _, p := range perm {
+    	r := [2]int{p, p}
+    	addRange(&stack, r)
+    }
+
+    if len(stack)==1 {
+    	return true
+    }
+    return false
+
+}
+
+
 func initCurLevel(s *Set) {
 	p := NewSet()
 	p.Add(NewPerm([]int{1, 2, 3}))
@@ -673,20 +707,20 @@ func worker(perm Perm, level int, wg *sync.WaitGroup) {
 	}
 	for a := 1; a <= level+1; a++ {
 		newPerm := localExp(perm, a)
-		if isBaxter(newPerm) {
+		if isBaxter(newPerm) && !isSeperable(newPerm){
 			n := level+1
 			fmt.Println(n)
-			fmt.Println(newPerm)
+			//fmt.Println(newPerm)
 			rects := BP2FP(newPerm, n)
-			seq, kill := ComputeOCS(rects)
+			_, kill := ComputeOCS(rects)
 
 			lock.Lock()
 			levelPermCount[n]++
 			if kill >= n/4 {
 				// Save to file instead
-				fmt.Println(n)
-				fmt.Println(seq)
-				fmt.Println(kill)
+				//fmt.Println(n)
+				//fmt.Println(seq)
+				//fmt.Println(kill)
 				fmt.Println()
 			}
 			lock.Unlock()
