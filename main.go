@@ -1,4 +1,4 @@
-// Baxter permutations are those which avoid the patterns 2-14-3 and 3-14-2 
+// Baxter permutations are those which avoid the patterns 2-41-3 and 3-14-2 
 // This generating tree based enumeration is based on the following paper:
 // https://arxiv.org/pdf/1702.04529.pdf
 
@@ -552,27 +552,14 @@ func max(a, b int) int {
 func isBaxter(perm Perm) bool {
 
 	for k := 0; k < len(perm)-1; k++ {
-		if perm[k] < perm[k+1]-1 {
+
+		two, three := 1000, 0
+
+		if perm[k] < perm[k+1]-2 {
 
 			// Memorise -14-
 			m, M := perm[k], perm[k+1]
-			two := 1000
-			three := 0
 			prefix, suffix := perm[:k], perm[k+2:]
-
-			// Avoid 2-14-3
-			for _, k := range prefix {
-				if k > m && k < M-1 {
-					two = min(k, two)
-				}
-			}
-
-			for _, k := range suffix {
-				if k > two && k < M {
-					three = k
-					return false
-				}
-			}
 
 			two = 1000
 			three = 0
@@ -586,6 +573,27 @@ func isBaxter(perm Perm) bool {
 
 			for _, k := range suffix {
 				if (k < three) && (k > m){
+					two = k
+					return false
+				}
+			}
+		}
+
+		if perm[k] > perm[k+1]+2 {
+
+			// Memorise -41-
+			m, M:= perm[k+1], perm[k]
+			prefix, suffix := perm[:k], perm[k+2:]
+
+			// Avoid 2-14-3
+			for _, k := range prefix {
+				if k > m && k < M-1 {
+					two = min(k, two)
+				}
+			}
+
+			for _, k := range suffix {
+				if k > two && k < M {
 					three = k
 					return false
 				}
@@ -672,6 +680,7 @@ func worker(perm Perm, level int, wg *sync.WaitGroup) {
 
 			lock.Lock()
 			levelPermCount[n]++
+			fmt.Println("Ping")
 			if kill >= n/4 {
 				// Save to file instead
 				fmt.Println(n)

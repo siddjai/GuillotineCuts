@@ -20,7 +20,7 @@ def isPlane(perm):
 	# Memorise -14-
 	steps = []
 	for k in range(n-1):
-		if perm[k] < perm[k+1] - 1: steps.append(k)
+		if perm[k] < perm[k+1] - 2: steps.append(k)
 
 
 	# Avoid 2-14-3
@@ -42,13 +42,13 @@ def isPlane(perm):
 
 curLevel = set([(1,2,3), (1,3,2), (2,1,3), (3,1,2), (2,3,1), (3,2,1)])
 level = 3
-while level != 5:
+while level != 15:
 	newLevel = set()
 	for perm in curLevel:
 		for a in range(1,level+2):
 			newPerm = localExp(perm, a)
 			if isPlane(newPerm): newLevel.add(newPerm)
 
-	print((newLevel))
+	print(len(newLevel))
 	curLevel = newLevel
 	level += 1

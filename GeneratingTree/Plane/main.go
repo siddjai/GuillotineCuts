@@ -133,7 +133,7 @@ func min(a, b int) int {
 func isPlane(perm Perm) bool {
 
 	for k := 0; k < len(perm)-1; k++ {
-		if perm[k] < perm[k+1]-1 {
+		if perm[k] < perm[k+1]-2 {
 			m, M := perm[k], perm[k+1]
 			two := 1000
 			prefix, suffix := perm[:k], perm[k+2:]

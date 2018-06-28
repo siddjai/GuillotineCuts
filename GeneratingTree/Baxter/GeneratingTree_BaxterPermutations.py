@@ -1,4 +1,4 @@
-# Baxter permutations are those which avoid the patterns 2-14-3 and 3-14-2 
+# Baxter permutations are those which avoid the patterns 2-41-3 and 3-14-2 
 # This generating tree based enumeration is based on the following paper:
 # https://arxiv.org/pdf/1702.04529.pdf
 
@@ -16,14 +16,14 @@ def localExp(perm, a):
 def isBaxter(perm):
 	n = len(perm)
 
-	# Memorise -14-
+	# Memorise -41-
 	steps = []
 	for k in range(n-1):
-		if perm[k] < perm[k+1] - 1: steps.append(k)
+		if perm[k] > perm[k+1] + 2: steps.append(k)
 
-	# Avoid 2-14-3
+	# Avoid 2-41-3
 	for s in steps:
-		m, M = perm[s], perm[s+1]
+		m, M = perm[s+1], perm[s]
 		two, three = 1000, 0
 		prefix, suffix = perm[:s], perm[s+2:]
 		for k in prefix:
@@ -35,7 +35,13 @@ def isBaxter(perm):
 				three = k
 				return False
 
-	# Avoid 3-14-2
+	# Memorise -14-
+	steps = []
+	for k in range(n-1):
+		if perm[k] < perm[k+1] - 2: steps.append(k)
+
+
+	# Avoid 3-41-2
 	for s in steps:
 		m, M = perm[s], perm[s+1]
 		two, three = 1000, 0
