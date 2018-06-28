@@ -89,7 +89,7 @@ func main() {
 					delete(left, p)
 				}
 
-				_, ok = left[p]
+				ok = okl
 			}
 
 			prevlabel = p
@@ -122,16 +122,17 @@ func main() {
 				if okb {
 					below[p] = bb
 				} else {
-					delete(below, b)
+					delete(below, p)
 				}
 
-				_, ok = below[p]
+				ok = okb
 			}
 
 			prevlabel = p
 
 		}
 		draw(rects, n)
+
 	}
 
 	fmt.Println(rects[1:])

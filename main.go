@@ -29,7 +29,7 @@ import (
 )
 
 var (
-	maxLevel = flag.Int("l", 6, "MAX Level")
+	maxLevel = flag.Int("l", 7, "MAX Level")
 	procs    = flag.Int("procs", 2, "Number of workers")
 	p        = flag.Bool("pprof", false, "Enable Profiling")
 	t        = flag.Bool("trace", false, "Enable Tracing")
@@ -471,7 +471,7 @@ func BP2FP(perm Perm, n int) [][4]int {
 					delete(left, p)
 				}
 
-				_, ok = left[p]
+				ok = okl
 			}
 
 			prevlabel = p
@@ -507,7 +507,7 @@ func BP2FP(perm Perm, n int) [][4]int {
 					delete(below, b)
 				}
 
-				_, ok = below[p]
+				ok = okb
 			}
 
 			prevlabel = p
@@ -675,12 +675,13 @@ func worker(perm Perm, level int, wg *sync.WaitGroup) {
 		newPerm := localExp(perm, a)
 		if isBaxter(newPerm) {
 			n := level+1
+			fmt.Println(n)
+			fmt.Println(newPerm)
 			rects := BP2FP(newPerm, n)
 			seq, kill := ComputeOCS(rects)
 
 			lock.Lock()
 			levelPermCount[n]++
-			fmt.Println("Ping")
 			if kill >= n/4 {
 				// Save to file instead
 				fmt.Println(n)
