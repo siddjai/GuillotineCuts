@@ -707,23 +707,25 @@ func worker(perm Perm, level int, wg *sync.WaitGroup) {
 	}
 	for a := 1; a <= level+1; a++ {
 		newPerm := localExp(perm, a)
-		if isBaxter(newPerm) && !isSeperable(newPerm){
-			n := level+1
-			fmt.Println(n)
-			//fmt.Println(newPerm)
-			rects := BP2FP(newPerm, n)
-			_, kill := ComputeOCS(rects)
+		if isBaxter(newPerm) {
+			if !isSeperable(newPerm) {
+				n := level+1
+				fmt.Println(n)
+				//fmt.Println(newPerm)
+				rects := BP2FP(newPerm, n)
+				_, kill := ComputeOCS(rects)
 
-			lock.Lock()
-			levelPermCount[n]++
-			if kill >= n/4 {
-				// Save to file instead
-				//fmt.Println(n)
-				//fmt.Println(seq)
-				//fmt.Println(kill)
-				fmt.Println()
+				lock.Lock()
+				levelPermCount[n]++
+				if kill >= n/4 {
+					// Save to file instead
+					//fmt.Println(n)
+					//fmt.Println(seq)
+					//fmt.Println(kill)
+					fmt.Println()
+				}
+				lock.Unlock()
 			}
-			lock.Unlock()
 			worker(newPerm, level+1, wg)
 		}
 	}
