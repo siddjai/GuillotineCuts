@@ -49,19 +49,10 @@ var dp_seq map[[4]int][][6]int
 var dp_kill map[[4]int]int
 
 func intervalIntersect(i1 [2]int, i2 [2]int) (bool){
-	x1 := i1[0]
-	x2 := i1[1]
-	if (x1 > i2[0] && x1 < i2[1]) || (x2 > i2[0] && x2 < i2[1]){
-		return true
+	if i1[0]>=i2[1] || i2[0]>=i1[1] {
+		return false
 	}
-
-	x1 = i2[0]
-	x2 = i2[1]
-	if (x1 > i1[0] && x1 < i1[1]) || (x2 > i1[0] && x2 < i1[1]){
-		return true
-	}
-
-	return false
+	return true
 }
 
 func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][6]int, int){

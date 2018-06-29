@@ -41,20 +41,12 @@ var (
 // var dp_kill map[[4]int]int
 
 func intervalIntersect(i1 [2]int, i2 [2]int) (bool){
-	x1 := i1[0]
-	x2 := i1[1]
-	if (x1 > i2[0] && x1 < i2[1]) || (x2 > i2[0] && x2 < i2[1]){
-		return true
+	if i1[0]>=i2[1] || i2[0]>=i1[1] {
+		return false
 	}
-
-	x1 = i2[0]
-	x2 = i2[1]
-	if (x1 > i1[0] && x1 < i1[1]) || (x2 > i1[0] && x2 < i1[1]){
-		return true
-	}
-
-	return false
+	return true
 }
+
 
 func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int, dp_kill map[[4]int]int, dp_seq map[[4]int][][6]int) ([][6]int, int){
 	// rects : Rectangles in the current set
@@ -719,9 +711,7 @@ func worker(perm Perm, level int, wg *sync.WaitGroup) {
 				levelPermCount[n]++
 				if kill >= n/4 {
 					// Save to file instead
-					//fmt.Println(n)
-					//fmt.Println(seq)
-					//fmt.Println(kill)
+					fmt.Println(newPerm)
 					fmt.Println()
 				}
 				lock.Unlock()
