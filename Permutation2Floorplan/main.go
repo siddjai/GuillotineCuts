@@ -26,6 +26,9 @@ func draw(rects [][4]int, n int) {
 	for k, rec:= range rects {
 		for i:=rec[0]; i<rec[1]; i++ {
 			for j:=rec[2]; j<rec[3]; j++ {
+				if mat[n - 1 -j][i]!=0 {
+					fmt.Println("Overwrite!")
+				}
 				mat[n - 1 - j][i] = k+1
 			}
 		}

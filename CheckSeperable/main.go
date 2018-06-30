@@ -1,3 +1,6 @@
+// This algorithm is taken from the following paper
+// https://www.sciencedirect.com/science/article/pii/S0020019097002093
+
 package main
 
 import (
