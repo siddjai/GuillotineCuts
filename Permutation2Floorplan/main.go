@@ -137,6 +137,14 @@ func main() {
 		draw(rects, n)
 
 	}
-
-	fmt.Println(rects[1:])
+	fmt.Println(n)
+	for k:=1; k<=n; k++ {
+		for i, rec := range rects[k] {
+			if i!=0 {
+				fmt.Print(" ")
+			}
+			fmt.Print(rec)
+		}
+		fmt.Println()
+	}
 }

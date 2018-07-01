@@ -9,41 +9,30 @@
 // Format for specifying an interval:
 // (a1, a2)
 
+// 7
+// 0 4 3 7
+// 4 7 6 7
+// 4 5 3 6
+// 0 5 2 3
+// 0 1 0 2
+// 1 5 0 2
+// 5 7 0 6
+// Excessive memory used by both examples!
+// 7
+// 0 6 5 7
+// 0 6 4 5
+// 0 1 0 4
+// 1 2 0 4
+// 2 6 3 4
+// 6 7 3 7
+// 2 7 0 3
+
 package main
 
 import (
 	"fmt"
 	"sort"
 )
-
-// // Taken from StackOverflow
-// // https://stackoverflow.com/questions/23192262/how-would-you-set-and-clear-a-single-bit-in-go
-// func setBit(n int, pos uint) int {
-//     n |= (1 << pos)
-//     return n
-// }
-
-// func clearBit(n int, pos uint) int {
-//     return n &^ (1 << pos)
-// }
-
-// func hasBit(n int, pos uint) bool {
-//     val := n & (1 << pos)
-//     return (val > 0)
-// }
-
-// // --- end of code snippet
-
-// func encode(labels []int) {
-// 	// Expectation: labels will be <= 20
-// 	// Therefore resulting number can be stored in <int>
-// 	e := 0
-// 	for _, l := range labels {
-// 		e = setBit(e, l)
-// 	}
-
-// 	return e
-// }
 
 var dp_seq map[[4]int][][6]int
 var dp_kill map[[4]int]int
@@ -149,11 +138,10 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 		sort.Ints(yy1)
 		sort.Ints(yy2)
 
-		//Jugaad | Should no longer be needed
 		kill1 := 255
 		kill2 := 255
-		var seq1 [][6]int
-		var seq2 [][6]int
+		seq1 := make([][6]int, 1)
+		seq2 := make([][6]int, 1)
 
 		if len(rects1) < len(rects) && len(rects2) < len(rects) {
 			seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq)
@@ -230,11 +218,10 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 		sort.Ints(xx1)
 		sort.Ints(xx2)
 
-		//Jugaad | should no longer be needed
 		kill1 := 255
 		kill2 := 255
-		var seq1 [][6]int
-		var seq2 [][6]int
+		seq1 := make([][6]int, 1)
+		seq2 := make([][6]int, 1)
 
 		if len(rects1) < len(rects) && len(rects2) < len(rects) {
 			seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq)

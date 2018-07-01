@@ -694,6 +694,7 @@ func worker(perm Perm, level int, wg *sync.WaitGroup) {
 	if level >= *maxLevel {
 		return
 	}
+
 	for a := 1; a <= level+1; a++ {
 		newPerm := localExp(perm, a)
 		if isBaxter(newPerm) {
