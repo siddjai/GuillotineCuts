@@ -9,24 +9,6 @@
 // Format for specifying an interval:
 // (a1, a2)
 
-// 7
-// 0 4 3 7
-// 4 7 6 7
-// 4 5 3 6
-// 0 5 2 3
-// 0 1 0 2
-// 1 5 0 2
-// 5 7 0 6
-// Excessive memory used by both examples!
-// 7
-// 0 6 5 7
-// 0 6 4 5
-// 0 1 0 4
-// 1 2 0 4
-// 2 6 3 4
-// 6 7 3 7
-// 2 7 0 3
-
 package main
 
 import (
@@ -150,9 +132,19 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 
 		cuts[k] = kill1 + kill2 + kill_cur
 
-		seq = append(seq, seq1...)
-		seq = append(seq, seq2...)
-		seqs[k] = seq
+		seq_cur := seq
+		seq_cur = append(seq_cur, seq1...)
+		seq_cur = append(seq_cur, seq2...)
+		seqs[k] = seq_cur
+
+		if kill_cur==0 {
+			var cur [][6]int
+			cur = append(cur, [6]int{reg[0], reg[1], reg[2], x[1+k], 0})
+			seqf := append(cur, seq_cur...)
+			dp_kill[reg] = cuts[k]
+			dp_seq[reg] = seqf
+			return seqf, cuts[k]
+		}
 
 	}
 
@@ -230,9 +222,19 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 
 		cuts[len(x) - 2 + k] = kill1 + kill2 + kill_cur
 
-		seq = append(seq, seq1...)
-		seq = append(seq, seq2...)
+		seq_cur := seq
+		seq_cur = append(seq_cur, seq1...)
+		seq_cur = append(seq_cur, seq2...)
 		seqs[len(x) - 2 + k] = seq
+
+		if kill_cur==0 {
+			var cur [][6]int
+			cur = append(cur, [6]int{reg[0], reg[1], reg[2], reg[3], y[1+k], 1})
+			seqf := append(cur, seq_cur...)
+			dp_kill[reg] = cuts[k]
+			dp_seq[reg] = seqf
+			return seqf, cuts[k]
+		}
 	}
 
 	//Choose min
