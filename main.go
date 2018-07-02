@@ -29,7 +29,7 @@ import (
 )
 
 var (
-	maxLevel = flag.Int("l", 7, "MAX Level")
+	maxLevel = flag.Int("l", 10, "MAX Level")
 	procs    = flag.Int("procs", 2, "Number of workers")
 	p        = flag.Bool("pprof", false, "Enable Profiling")
 	t        = flag.Bool("trace", false, "Enable Tracing")
@@ -142,11 +142,10 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int, dp_k
 		sort.Ints(yy1)
 		sort.Ints(yy2)
 
-		//Jugaad | Should no longer be needed
 		kill1 := 255
 		kill2 := 255
-		var seq1 [][6]int
-		var seq2 [][6]int
+		seq1 := make([][6]int, 1)
+		seq2 := make([][6]int, 1)
 
 		if len(rects1) < len(rects) && len(rects2) < len(rects) {
 			seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq, dp_kill, dp_seq)
@@ -155,9 +154,19 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int, dp_k
 
 		cuts[k] = kill1 + kill2 + kill_cur
 
-		seq = append(seq, seq1...)
-		seq = append(seq, seq2...)
-		seqs[k] = seq
+		seq_cur := seq
+		seq_cur = append(seq_cur, seq1...)
+		seq_cur = append(seq_cur, seq2...)
+		seqs[k] = seq_cur
+
+		if kill_cur==0 && len(rects1) < len(rects) && len(rects2) < len(rects) {
+			var cur [][6]int
+			cur = append(cur, [6]int{reg[0], reg[1], reg[2], x[1+k], 0})
+			seqf := append(cur, seq_cur...)
+			dp_kill[reg] = cuts[k]
+			dp_seq[reg] = seqf
+			return seqf, cuts[k]
+		}
 
 	}
 
@@ -223,11 +232,10 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int, dp_k
 		sort.Ints(xx1)
 		sort.Ints(xx2)
 
-		//Jugaad | should no longer be needed
 		kill1 := 255
 		kill2 := 255
-		var seq1 [][6]int
-		var seq2 [][6]int
+		seq1 := make([][6]int, 1)
+		seq2 := make([][6]int, 1)
 
 		if len(rects1) < len(rects) && len(rects2) < len(rects) {
 			seq1, kill1 = optimalCut(rects1, xx1, yy1, reg1, seq, dp_kill, dp_seq)
@@ -236,9 +244,19 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int, dp_k
 
 		cuts[len(x) - 2 + k] = kill1 + kill2 + kill_cur
 
-		seq = append(seq, seq1...)
-		seq = append(seq, seq2...)
+		seq_cur := seq
+		seq_cur = append(seq_cur, seq1...)
+		seq_cur = append(seq_cur, seq2...)
 		seqs[len(x) - 2 + k] = seq
+
+		if kill_cur==0 && len(rects1) < len(rects) && len(rects2) < len(rects) {
+			var cur [][6]int
+			cur = append(cur, [6]int{reg[0], reg[1], reg[2], reg[3], y[1+k], 1})
+			seqf := append(cur, seq_cur...)
+			dp_kill[reg] = cuts[k]
+			dp_seq[reg] = seqf
+			return seqf, cuts[k]
+		}
 	}
 
 	//Choose min
@@ -351,7 +369,7 @@ func (p Perm) Size() int {
 func (p Perm) String() string {
 	var b strings.Builder
 	for _, v := range p {
-		fmt.Fprintf(&b, "%d,", v)
+		fmt.Fprintf(&b, "%d ", v)
 	}
 	return b.String()
 }

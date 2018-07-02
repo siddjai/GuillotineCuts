@@ -137,7 +137,7 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 		seq_cur = append(seq_cur, seq2...)
 		seqs[k] = seq_cur
 
-		if kill_cur==0 {
+		if kill_cur==0 && len(rects1) < len(rects) && len(rects2) < len(rects){
 			var cur [][6]int
 			cur = append(cur, [6]int{reg[0], reg[1], reg[2], x[1+k], 0})
 			seqf := append(cur, seq_cur...)
@@ -227,7 +227,7 @@ func optimalCut(rects [][4]int, x []int, y []int, reg [4]int, seq [][6]int) ([][
 		seq_cur = append(seq_cur, seq2...)
 		seqs[len(x) - 2 + k] = seq
 
-		if kill_cur==0 {
+		if kill_cur==0 && len(rects1) < len(rects) && len(rects2) < len(rects){
 			var cur [][6]int
 			cur = append(cur, [6]int{reg[0], reg[1], reg[2], reg[3], y[1+k], 1})
 			seqf := append(cur, seq_cur...)

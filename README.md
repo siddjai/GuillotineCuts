@@ -15,6 +15,7 @@ Each folder contains a *.go* code which was/will be actually used for enumeratio
 
 ### Possible Edits
 
+- Use **uint8** in ComputeOptimalCutSeq to reduce memory usage and improve performance.
 - Use **uint8** in Generating Tree implementation, that could save memory if needed and speed up a bit.
 - Instead of the *reg*, use an encoding of labels in ComputeOptimalCutSeq. This would add overhead in function but reduce size of *seq* and could potentially lead to speedup.
 
