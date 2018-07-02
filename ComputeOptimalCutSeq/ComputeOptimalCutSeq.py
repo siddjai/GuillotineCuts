@@ -59,7 +59,7 @@ def optimalCut(rects, x, y, reg, seq):
 			yy1.add(tup[3])
 
 		reg1 = list(reg)
-		reg1[1] = x[1+k] 
+		reg1[1] = x[1+k]
 		reg1 = tuple(reg1)
 
 		yy2 = set()
@@ -70,7 +70,7 @@ def optimalCut(rects, x, y, reg, seq):
 		yy1 = sorted(list(yy1))
 		yy2 = sorted(list(yy2))
 
-		reg2 = list(reg) 
+		reg2 = list(reg)
 		reg2[0] = x[1+k]
 		reg2 = tuple(reg2)
 
@@ -105,7 +105,7 @@ def optimalCut(rects, x, y, reg, seq):
 
 		reg1 = list(reg)
 		reg1[3] = y[1+k]
-		reg1 = tuple(reg1) 
+		reg1 = tuple(reg1)
 
 		xx2 = set()
 		for tup in rects2:
@@ -115,7 +115,7 @@ def optimalCut(rects, x, y, reg, seq):
 		xx1 = sorted(list(xx1))
 		xx2 = sorted(list(xx2))
 
-		reg2 = list(reg) 
+		reg2 = list(reg)
 		reg2[2] = y[1+k]
 		reg2 = tuple(reg2)
 
@@ -148,7 +148,7 @@ def sanityCheck(rects):
 			x1, x2, y1, y2 = (rec1[0], rec1[1]), (rec2[0], rec2[1]), (rec1[2], rec1[3]), (rec2[2], rec2[3])
 			if intervalIntersect(x1, x2) and intervalIntersect(y1, y2): return False
 
-	return True 
+	return True
 
 n = int(input())
 rects = set()
@@ -174,4 +174,3 @@ if sanityCheck(rects):
 	print(optimalCut(rects, x, y, reg, seq))
 
 else: print("Rectangle set not valid")
-
