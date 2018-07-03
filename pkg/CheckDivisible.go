@@ -49,5 +49,6 @@ func IsMosaicDivisible(perm []uint8) uint8 {
 // Export
 // This function applies to general case
 func isDivisible(rects [][4]uint8) uint8 {
+	// TO-DO
 	return 0
 }

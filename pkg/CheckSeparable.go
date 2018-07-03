@@ -1,19 +1,5 @@
 package pkg
 
-func Min(a uint8, b uint8) uint8 {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func Max(a uint8, b uint8) uint8 {
-	if a > b {
-		return a
-	}
-	return b
-}
-
 func addRange(stack *[][2]uint8, r [2]uint8) {
 	s := *stack
 	n := len(s)
