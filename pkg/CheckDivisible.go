@@ -1,10 +1,13 @@
 package pkg
 
 // Export
+// A set of rectangles is divisible if there is a free cut
+// This function applies to Mosaic floorplan
 // Return 0 if not divisible
 // Otherwise return the cut from 1 to n-1
+// Time complexity: O(n)
 
-func IsDivisible(perm []uint8) uint8 {
+func IsMosaicDivisible(perm []uint8) uint8 {
 	n := uint8(len(perm))
 	if perm[0] == 1 || perm[0] == n {
 		return 1
@@ -40,5 +43,11 @@ func IsDivisible(perm []uint8) uint8 {
 			}
 		}
 	}
+	return 0
+}
+
+// Export
+// This function applies to general case
+func isDivisible(rects [][4]uint8) uint8 {
 	return 0
 }
