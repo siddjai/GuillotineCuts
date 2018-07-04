@@ -19,7 +19,9 @@ func IndividualTest(permStr string) {
 	perms = append(perms, perm)
 	n := len(perm)
 	m := NewManager(uint8(n), 1)
+
 	go m.AddJobs(perms)
+	go m.StopJobs()
 	m.Start()
 	m.PrintResult()
 }
@@ -37,7 +39,9 @@ func BatchTest(n int, N uint32) {
 		}
 	}
 	fmt.Println("Total perms:", len(perms))
+
 	go m.AddJobs(perms)
+	go m.StopJobs()
 	m.Start()
 	m.PrintResult()
 }

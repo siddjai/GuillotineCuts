@@ -11,14 +11,15 @@ import (
 )
 
 type Manager struct {
-	caches         []map[string]uint8
-	mutexes        []sync.Mutex
-	n, maxCost     uint8
-	maxPerm        []uint8
-	workers_number uint16
-	jobs           chan Job
-	results        chan Result
-	done           chan bool
+	caches          []map[string]uint8
+	mutexes         []sync.Mutex
+	n, maxCost      uint8
+	maxPerm         []uint8
+	workers_number  uint16
+	jobs            chan Job
+	results         chan Result
+	done            chan bool
+	wgWorker, wgJob sync.WaitGroup
 }
 
 func NewManager(n uint8, workers_number uint16) *Manager {
@@ -58,29 +59,34 @@ type Result struct {
 	cost uint8
 }
 
-func worker(m *Manager, wg *sync.WaitGroup) {
+func worker(m *Manager) {
 	for job := range m.jobs {
 		output := Result{job, m.mosaicOCS(job.perm)}
 		m.results <- output
 	}
-	wg.Done()
+	m.wgWorker.Done()
 }
 
 func (m *Manager) createWorkers() {
-	var wg sync.WaitGroup
 	for i := uint16(0); i < m.workers_number; i++ {
-		wg.Add(1)
-		go worker(m, &wg)
+		m.wgWorker.Add(1)
+		go worker(m)
 	}
-	wg.Wait()
+	m.wgWorker.Wait()
 	close(m.results)
 }
 
 func (m *Manager) AddJobs(perms [][]uint8) {
+	m.wgJob.Add(1)
 	for _, perm := range perms {
 		job := Job{perm}
 		m.jobs <- job
 	}
+	m.wgJob.Done()
+}
+
+func (m *Manager) StopJobs() {
+	m.wgJob.Wait()
 	close(m.jobs)
 }
 
