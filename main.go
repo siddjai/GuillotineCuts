@@ -1,7 +1,11 @@
 package main
 
-import "GuillotineCuts/mocs"
+import "GuillotineCuts/enum"
 
 func main() {
-	mocs.BatchTest(15, 1000000)
+	n := uint8(12)
+	workers_enum := uint16(200)
+	workers_mocs := uint16(500)
+	maxjobs := uint32(10000000)
+	enum.Test(n, workers_enum, workers_mocs, maxjobs)
 }

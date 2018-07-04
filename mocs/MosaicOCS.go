@@ -18,11 +18,12 @@ type Manager struct {
 	workers_number  uint16
 	jobs            chan Job
 	results         chan Result
-	done            chan bool
+	Done            chan bool
+	startTime       time.Time
 	wgWorker, wgJob sync.WaitGroup
 }
 
-func NewManager(n uint8, workers_number uint16) *Manager {
+func NewManager(n uint8, workers_number uint16, maxjobs uint32) *Manager {
 	m := Manager{n: n, workers_number: workers_number}
 	m.caches = make([]map[string]uint8, n-4)
 	m.mutexes = make([]sync.Mutex, n-4)
@@ -31,21 +32,22 @@ func NewManager(n uint8, workers_number uint16) *Manager {
 		m.mutexes[i] = sync.Mutex{}
 	}
 	m.maxCost = 0
-	m.jobs = make(chan Job, workers_number)
+	m.jobs = make(chan Job, maxjobs)
 	m.results = make(chan Result, workers_number)
-	m.done = make(chan bool)
+	m.Done = make(chan bool)
 	return &m
 }
 
 func (m *Manager) Start() {
-	startTime := time.Now()
+	m.startTime = time.Now()
 	go m.getResults()
 	m.createWorkers()
-	<-m.done
-	fmt.Println("Time taken ", time.Since(startTime))
 }
 
 func (m *Manager) PrintResult() {
+	<-m.Done
+	<-m.Done
+	fmt.Println("Time taken for OCS", time.Since(m.startTime))
 	fmt.Println("Perm: ", m.maxPerm)
 	fmt.Println("Cost: ", m.maxCost)
 }
@@ -59,7 +61,7 @@ type Result struct {
 	cost uint8
 }
 
-func worker(m *Manager) {
+func (m *Manager) worker() {
 	for job := range m.jobs {
 		output := Result{job, m.mosaicOCS(job.perm)}
 		m.results <- output
@@ -70,7 +72,7 @@ func worker(m *Manager) {
 func (m *Manager) createWorkers() {
 	for i := uint16(0); i < m.workers_number; i++ {
 		m.wgWorker.Add(1)
-		go worker(m)
+		go m.worker()
 	}
 	m.wgWorker.Wait()
 	close(m.results)
@@ -97,7 +99,7 @@ func (m *Manager) getResults() {
 			m.maxPerm = result.job.perm
 		}
 	}
-	m.done <- true
+	m.Done <- true
 }
 
 func (m *Manager) mosaicOCS(perm []uint8) uint8 {

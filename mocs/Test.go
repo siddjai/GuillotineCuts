@@ -18,16 +18,15 @@ func IndividualTest(permStr string) {
 	}
 	perms = append(perms, perm)
 	n := len(perm)
-	m := NewManager(uint8(n), 1)
+	m := NewManager(uint8(n), 1, 1)
 
 	go m.AddJobs(perms)
 	go m.StopJobs()
 	m.Start()
-	m.PrintResult()
 }
 
 func BatchTest(n int, N uint32) {
-	m := NewManager(uint8(n), 100)
+	m := NewManager(uint8(n), 100, 1000)
 	perms := make([][]uint8, 0)
 	for i := uint32(0); i < N; i++ {
 		perm := make([]uint8, n)
@@ -43,5 +42,4 @@ func BatchTest(n int, N uint32) {
 	go m.AddJobs(perms)
 	go m.StopJobs()
 	m.Start()
-	m.PrintResult()
 }

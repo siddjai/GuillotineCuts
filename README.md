@@ -9,13 +9,9 @@ This repository contains all code written for my Bachelor's Thesis at IIIT-Delhi
 - **Permutation 2 Floorplan** : We interpret the permutation as a mosaic floorplan.
 - **Compute Optimal-Cut-Seq**: Finally, we compute the optimal Guillotine cut sequence on the set of rectangles.
 
-### Run & Reference
+### TO-DO
 
-Each folder contains a *.go* code which was/will be actually used for enumeration and a *.py* code which was written as proof of concept to iron out implementation details.
-
-### Possible Edits
-
-- Use **uint8** in Generating Tree implementation, that could save memory if needed and speed up a bit.
-- Instead of the *reg*, use an encoding of labels in ComputeOptimalCutSeq. This would add overhead in function but reduce size of *seq* and could potentially lead to speedup.
+- Check divisible in general case
+- Compute OCS in general case
 
 All points mentioned here need further analysis.
