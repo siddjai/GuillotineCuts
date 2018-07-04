@@ -1,6 +1,7 @@
-package pkg
+package div
 
-// Export
+import "GuillotineCuts/pkg"
+
 // A set of rectangles is divisible if there is a free cut
 // This function applies to Mosaic floorplan
 // Return 0 if not divisible
@@ -29,7 +30,7 @@ func IsMosaicDivisible(perm []uint8) uint8 {
 	if i1 < in {
 		max := perm[0]
 		for i := uint8(1); i < in; i++ {
-			max = Max(max, perm[i])
+			max = pkg.Max(max, perm[i])
 			if max == i+1 {
 				return i + 1
 			}
@@ -37,7 +38,7 @@ func IsMosaicDivisible(perm []uint8) uint8 {
 	} else {
 		min := perm[0]
 		for i := uint8(1); i < i1; i++ {
-			min = Min(min, perm[i])
+			min = pkg.Min(min, perm[i])
 			if min+i == n {
 				return i + 1
 			}
@@ -46,7 +47,6 @@ func IsMosaicDivisible(perm []uint8) uint8 {
 	return 0
 }
 
-// Export
 // This function applies to general case
 func isDivisible(rects [][4]uint8) uint8 {
 	// TO-DO

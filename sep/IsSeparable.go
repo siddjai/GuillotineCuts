@@ -1,4 +1,6 @@
-package pkg
+package sep
+
+import "GuillotineCuts/pkg"
 
 func addRange(stack *[][2]uint8, r [2]uint8) {
 	s := *stack
@@ -14,12 +16,11 @@ func addRange(stack *[][2]uint8, r [2]uint8) {
 		return
 	} else {
 		*stack = s[:n-1]
-		r_new := [2]uint8{Min(r[0], top[0]), Max(r[1], top[1])}
+		r_new := [2]uint8{pkg.Min(r[0], top[0]), pkg.Max(r[1], top[1])}
 		addRange(stack, r_new)
 	}
 }
 
-// Export
 func IsSeparable(perm []uint8) bool {
 	if len(perm) <= 4 {
 		return true
