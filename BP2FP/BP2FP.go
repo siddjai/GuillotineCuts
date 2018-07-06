@@ -86,5 +86,5 @@ func BP2FP(perm []uint8) [][4]uint8 {
 		}
 	}
 
-	return rects
+	return rects[1:]
 }
