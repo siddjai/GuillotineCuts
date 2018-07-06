@@ -4,15 +4,15 @@ import(
 	"GuillotineCuts/BP2FP"
 )
 
-func intervalIntersect(i1 [2]int, i2 [2]int) {
+func intervalIntersect(i1 [2]uint8, i2 [2]uint8) bool{
 	return !(i1[0]>=i2[1] || i2[0]>=i1[1])
 }
 
 func complement(perm []uint8) []uint8 {
 	n := uint8(len(perm))
 	permC := make([]uint8, n)
-	for i, k := range perm {
-		permC[i] = n + 1 - k
+	for i:=uint8(0); i<n; i++ {
+		permC[i] = n + 1 - perm[i]
 	}
 	return permC
 }
@@ -20,17 +20,17 @@ func complement(perm []uint8) []uint8 {
 func reverse(perm []uint8) []uint8 {
 	n := uint8(len(perm))
 	permR := make([]uint8, n)
-	for i, k := range perm {
-		permR[n-1-i] = k
+	for i:=uint8(0); i<n; i++ {
+		permR[n-1-i] = perm[i]
 	}
 	return permR
 }
 
 func inversePerm(perm []uint8) []uint8 {
-	n := len(perm)
-	inv := make([]int, n)
+	n := uint8(len(perm))
+	inv := make([]uint8, n)
 
-	for i:=0; i<n; i++ {
+	for i:=uint8(0); i<n; i++ {
 		inv[perm[i]-1] = i+1
 	}
 
@@ -39,28 +39,32 @@ func inversePerm(perm []uint8) []uint8 {
 
 // O(n^2)
 func reflect(perm []uint8) []uint8 {
-	rects := BP2FP.BP2FP(perm)
+	rects := BP2FP(perm)
 	n := len(rects)
 	temp := rects
 	remaining := n
 	order := make([]uint8, 0)
 
 	for remaining>0 {
-		blr := -1
-		var rblr [4]uint8
-		for i, r := range temp {
+		m := uint8(len(temp))
+		var blr uint8
+		for i:=uint8(0); i<m; i++ {
+			r := temp[i]
 			if r[0]==0 && r[2]==0 {
 				blr = i
 				break
 			}
 		}
-		rblr = temp[blr]
 
-		x := temp[blr][:2]
-		x_neighbs := make(map[int]bool)
+		var x [2]uint8
+		copy(x[:], temp[blr][:2])
+		x_neighbs := make(map[uint8]bool)
 		fromTop := true
-		for i, r := range temp {
-			if intervalIntersect(r[:2], x) {
+		for i:=uint8(0); i<m; i++ {
+			r := temp[i]
+			var intv [2]uint8
+			copy(intv[:], r[:2]) 
+			if intervalIntersect(intv, x) {
 				if r[1] > x[1] {
 					fromTop = false
 					break
@@ -71,10 +75,14 @@ func reflect(perm []uint8) []uint8 {
 		}
 
 		if !fromTop {
-			y := temp[blr][2:]
-			y_neighbs := make(map[int]bool)
-			for i, r := range temp {
-				if intervalIntersect(r[2:], y) {
+			var y [2]uint8
+			copy(y[:], temp[blr][2:])
+			y_neighbs := make(map[uint8]bool)
+			for i:=uint8(0); i<m; i++ {
+				r := temp[i]
+				var intv [2]uint8
+				copy(intv[:], r[2:])
+				if intervalIntersect(intv, y) {
 					y_neighbs[i] = true
 				}
 			}
@@ -90,7 +98,7 @@ func reflect(perm []uint8) []uint8 {
 
 		}
 
-		temp[blr] = [4]int{-1, -1, -1, -1}
+		temp[blr] = [4]uint8{255, 255, 255, 255}
 		remaining--
 		order = append(order, blr+1)
 	}
