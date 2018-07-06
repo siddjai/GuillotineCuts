@@ -1,17 +1,9 @@
 package eqv
 
-import(
-	"GuillotineCuts/BP2FP"
-)
-
-func intervalIntersect(i1 [2]uint8, i2 [2]uint8) bool{
-	return !(i1[0]>=i2[1] || i2[0]>=i1[1])
-}
-
 func complement(perm []uint8) []uint8 {
 	n := uint8(len(perm))
 	permC := make([]uint8, n)
-	for i:=uint8(0); i<n; i++ {
+	for i := uint8(0); i < n; i++ {
 		permC[i] = n + 1 - perm[i]
 	}
 	return permC
@@ -20,7 +12,7 @@ func complement(perm []uint8) []uint8 {
 func reverse(perm []uint8) []uint8 {
 	n := uint8(len(perm))
 	permR := make([]uint8, n)
-	for i:=uint8(0); i<n; i++ {
+	for i := uint8(0); i < n; i++ {
 		permR[n-1-i] = perm[i]
 	}
 	return permR
@@ -30,13 +22,12 @@ func inversePerm(perm []uint8) []uint8 {
 	n := uint8(len(perm))
 	inv := make([]uint8, n)
 
-	for i:=uint8(0); i<n; i++ {
-		inv[perm[i]-1] = i+1
+	for i := uint8(0); i < n; i++ {
+		inv[perm[i]-1] = i + 1
 	}
 
 	return inv
 }
-
 
 func eqv(perm []uint8) [8][]uint8 {
 	var all [8][]uint8

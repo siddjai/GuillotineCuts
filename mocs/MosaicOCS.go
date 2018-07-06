@@ -44,9 +44,11 @@ func (m *Manager) Start() {
 	m.createWorkers()
 }
 
-func (m *Manager) PrintResult() {
+func (m *Manager) PrintResult(isEnum bool) {
 	<-m.Done
-	<-m.Done
+	if isEnum {
+		<-m.Done
+	}
 	fmt.Println("Time taken for OCS", time.Since(m.startTime))
 	fmt.Println("Perm: ", m.maxPerm)
 	fmt.Println("Cost: ", m.maxCost)

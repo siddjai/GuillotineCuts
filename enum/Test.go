@@ -9,5 +9,5 @@ func Test(n uint8, workers_enum uint16, workers_mocs uint16, maxjobs uint32) {
 	mmocs := mocs.NewManager(n, workers_mocs, maxjobs)
 	go menum.StartWith(mmocs)
 	mmocs.Start()
-	mmocs.PrintResult()
+	mmocs.PrintResult(true)
 }

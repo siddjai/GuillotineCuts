@@ -23,6 +23,7 @@ func IndividualTest(permStr string) {
 	go m.AddJobs(perms)
 	go m.StopJobs()
 	m.Start()
+	m.PrintResult(false)
 }
 
 func BatchTest(n int, N uint32) {
@@ -42,4 +43,5 @@ func BatchTest(n int, N uint32) {
 	go m.AddJobs(perms)
 	go m.StopJobs()
 	m.Start()
+	m.PrintResult(false)
 }
