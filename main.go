@@ -1,7 +1,5 @@
 package main
 
-import "GuillotineCuts/mocs"
-
 func main() {
 	n := 11
 	workersNumber := 1000
