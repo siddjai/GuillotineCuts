@@ -1,3 +1,5 @@
+// Bitmap just in case we will do the general case
+
 package pkg
 
 import (

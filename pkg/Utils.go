@@ -3,6 +3,8 @@ package pkg
 import (
 	"bytes"
 	"sort"
+	"strconv"
+	"strings"
 )
 
 // Time complexity: O(nlogn)
@@ -29,6 +31,24 @@ func ToString(perm []uint8) string {
 		buffer.WriteByte(p)
 	}
 	return buffer.String()
+}
+
+func ToSlice(str string) []uint8 {
+	perm := make([]uint8, len(str))
+	for i := 0; i < len(str); i++ {
+		perm[i] = str[i]
+	}
+	return perm
+}
+
+func GetSlice(str string) []uint8 {
+	tokens := strings.Split(str, " ")
+	perm := make([]uint8, len(tokens))
+	for i := 0; i < len(tokens); i++ {
+		i64, _ := strconv.ParseUint(tokens[i], 10, 8)
+		perm[i] = uint8(i64)
+	}
+	return perm
 }
 
 func InsertPerm(perm []uint8, a, pos uint8) []uint8 {
