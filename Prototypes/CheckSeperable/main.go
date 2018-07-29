@@ -26,12 +26,14 @@ func addRange(stack *[][2]int, r [2]int) (){
 	n := len(s)
 	if n==0 {
 		*stack = append(s, r)
+		fmt.Println(*stack)
 		return
 	}
 	
 	top := s[n-1]
 	if r[0]>top[1]+1 || top[0]>r[1]+1 {
 		*stack = append(s, r)
+		fmt.Println(*stack)
 		return
 	} else {
 		*stack = s[:n-1]
