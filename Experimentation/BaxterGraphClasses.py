@@ -1,6 +1,4 @@
-# Baxter permutations are those which avoid the patterns 2-41-3 and 3-14-2 
-# This generating tree based enumeration is based on the following paper:
-# https://arxiv.org/pdf/1702.04529.pdf
+#!/usr/bin/env sage
 
 def localExp(perm, a):
 	# Local expansion as described in the paper
@@ -67,6 +65,22 @@ while level != 12:
 			newPerm = localExp(perm, a)
 			if isBaxter(newPerm): newLevel.add(newPerm)
 
-	print(len(newLevel))
+	gc1 = graph_classes.get_class("gc_15")
+	c1 = 0
+	for p in newLevel:
+		n = len(p)
+		d = dict()
+		for i in range(n-1):
+			p_i = p[i]
+			l_i = []
+			for j in range(i+1, n):
+				if p[j] < p[i]:
+					l_i.append(p[j])
+			d[p_i - 1] = l_i
+		g = Graph(d)
+		if g not in gc1:
+			c1 +=1
+	print(c1)
+
 	curLevel = newLevel
 	level += 1
